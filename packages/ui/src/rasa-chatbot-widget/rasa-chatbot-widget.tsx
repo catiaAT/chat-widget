@@ -374,6 +374,9 @@ export class RasaChatbotWidget {
     this.messages = [...this.messages, { type: 'text', text: event.detail, sender: 'user', timestamp }];
     this.scrollToBottom();
     this.sentMessage = true;
+    // Reset feedback state when user sends a new message (new interaction turn)
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
   }
 
   @Listen('quickReplySelected')
@@ -387,6 +390,9 @@ export class RasaChatbotWidget {
     this.client.sendMessage({ text: quickReply.text, reply: quickReply.reply, timestamp }, true, key - 1);
     this.chatWidgetQuickReply.emit(quickReply.reply);
     this.sentMessage = true;
+    // Reset feedback state when user selects a quick reply (new interaction turn)
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
   }
 
   @Listen('linkClicked')
@@ -404,8 +410,8 @@ export class RasaChatbotWidget {
   @Listen('feedbackSubmitted')
   // @ts-ignore-next-line
   private handleFeedbackSubmitted(event: CustomEvent<{ rating: 'positive' | 'negative'; helpful: boolean }>) {
-    // Don't set feedbackSubmitted immediately - let the component show thank you message
-    // this.feedbackSubmitted = true;
+    // Set feedbackSubmitted to prevent showing feedback again in this conversation
+    this.feedbackSubmitted = true;
     
     // Allow time for thank you message to show, then hide the component
     setTimeout(() => {
