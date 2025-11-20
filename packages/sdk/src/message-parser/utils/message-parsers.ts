@@ -29,28 +29,28 @@ export const MessageParsers = {
     text: message.text,
     timestamp: message.timestamp,
   }),
-  image: ({ attachment, text, timestamp }: ImageResponse, sender: SenderType): ImageMessage => ({
+  image: (message: ImageResponse, sender: SenderType): ImageMessage => ({
     sender,
     type: MESSAGE_TYPES.IMAGE,
-    imageSrc: attachment.payload.src,
-    alt: attachment.payload.alt || '',
-    text: text,
-    timestamp: timestamp,
+    imageSrc: message.attachment.payload.src,
+    alt: message.attachment.payload.alt || '',
+    text: message.text,
+    timestamp: message.timestamp,
   }),
   accordion: (message: AccordionResponse, sender: SenderType): AccordionMessage => ({
     sender,
     ...message,
     type: MESSAGE_TYPES.ACCORDION,
   }),
-  carousel: ({ elements, timestamp }: CarouselResponse, sender: SenderType): CarouselMessage => ({
+  carousel: (message: CarouselResponse, sender: SenderType): CarouselMessage => ({
     sender,
     type: MESSAGE_TYPES.CAROUSEL,
-    elements: elements.map(({ image_url, text, link }) => ({
+    elements: message.elements.map(({ image_url, text, link }) => ({
       text,
       link,
       imageUrl: image_url,
     })),
-    timestamp,
+    timestamp: message.timestamp,
   }),
   quickReply: (message: QuickReplyResponse, sender: SenderType): QuickReplyMessage => ({
     sender,
@@ -64,25 +64,24 @@ export const MessageParsers = {
     timestamp: message.timestamp,
   }),
   fileDownload: (
-    { text, file_url, file_name, timestamp }: FileDownloadResponse,
+    message: FileDownloadResponse,
     sender: SenderType,
   ): FileDownloadMessage => ({
     sender,
     type: MESSAGE_TYPES.FILE_DOWNLOAD,
-    fileName: file_name,
-    fileUrl: file_url,
-    text,
-    timestamp,
+    fileName: message.file_name,
+    fileUrl: message.file_url,
+    text: message.text,
+    timestamp: message.timestamp,
   }),
   video: (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { title, video_url, timestamp }: VideoResponse,
+    message: VideoResponse,
     sender: SenderType,
   ): VideoMessage => ({
     sender,
     type: MESSAGE_TYPES.VIDEO,
-    src: video_url,
-    timestamp,
+    src: message.video_url,
+    timestamp: message.timestamp,
   }),
   rating: (message: RatingResponse, sender: SenderType): RatingMessage => ({
     sender,

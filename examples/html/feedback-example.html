@@ -6,11 +6,11 @@
     <title>Rasa Chat Widget - Complete Features Demo</title>
         <script
           type="module"
-          src="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.esm.js?v=48"
+          src="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.esm.js?v=95"
         ></script>
         <link
           rel="stylesheet"
-          href="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.css?v=48"
+          href="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.css?v=95"
         />
     <style>
       body {
@@ -93,13 +93,13 @@
 
     <!-- Complete Chat Widget with All Features -->
     <rasa-chatbot-widget 
-      server-url="https://aiasistent.gov.rs"
+      server-url="https://33fddfdecdf7.ngrok-free.app"
+      rest-enabled="true"
       input-message-placeholder="Која Вас услуга занима?"
       widget-title="еУправа асистент"
       widget-icon=""
       initial-payload="/session_start"
       enable-feedback="true"
-      feedback-trigger-pattern="text"
       feedback-question-text="Како оцењујете овај разговор?"
       feedback-thank-you-text="Хвала на повратним информацијама!"
       session-started-text="Сесија започета:"
@@ -108,7 +108,7 @@
     >
       <style>
         :root {
-          --color-primary: #2c73d2;
+          --color-primary: #003964;
         }
       </style>
     </rasa-chatbot-widget>
