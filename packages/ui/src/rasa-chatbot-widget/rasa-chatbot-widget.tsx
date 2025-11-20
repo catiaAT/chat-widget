@@ -420,7 +420,6 @@ export class RasaChatbotWidget {
       try {
         // Simple check - if serverUrl is not available, skip slot setting
         if (!this.serverUrl) {
-          console.log('📝 Feedback received (slot setting skipped - serverUrl not available):', slotValue);
           return;
         }
         
@@ -451,13 +450,12 @@ export class RasaChatbotWidget {
           })
         });
         
-        if (response.ok) {
-          console.log(`✅ Slot 'widget_feedback' set to '${slotValue}' successfully`);
-        } else {
-          console.log(`📝 Feedback received (slot setting failed - ${response.status}):`, slotValue);
+        // Slot setting response handled silently
+        if (!response.ok) {
+          // Slot setting failed - error handled silently
         }
       } catch (error) {
-        console.log(`📝 Feedback received (slot setting error):`, slotValue);
+        // Slot setting error handled silently
       }
     })();
     
