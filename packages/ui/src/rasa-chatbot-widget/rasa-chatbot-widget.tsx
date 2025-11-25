@@ -524,7 +524,8 @@ export class RasaChatbotWidget {
   }
 
   private renderMessage(message: Message, isHistory = false, key) {
-    // Don't render messages with text "no_feedback" - these are control messages from Rasa
+    // Always filter out "no_feedback" messages - these are control messages from Rasa
+    // This filtering is independent of feedback settings (enableFeedback prop)
     if ('text' in message && message.text && (message.text as string).trim() === 'no_feedback') {
       return null;
     }
