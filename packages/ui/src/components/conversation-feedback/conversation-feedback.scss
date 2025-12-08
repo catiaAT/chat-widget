@@ -39,9 +39,10 @@
       }
 
   &__title {
+    font-family: var(--widget-font-family, 'Lato', sans-serif);
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--feedback-title-color, #333);
+    color: var(--color-primary);
     margin: 0 0 12px 0;
     text-align: center;
   }
@@ -63,16 +64,27 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--feedback-thumb-color, #666);
+    color: #999;
     font-size: 16px;
     line-height: 1;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      
+      path {
+        fill: currentColor;
+      }
+    }
 
     &:hover {
-      border-color: var(--feedback-thumb-hover-border, #999);
+      border-color: var(--color-primary);
       background: var(--feedback-thumb-hover-bg, #f8f9fa);
+      color: var(--color-primary);
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 8px rgba(0, 57, 100, 0.15);
     }
 
     &:active {
@@ -82,31 +94,31 @@
 
     &--positive {
       &:hover {
-        border-color: var(--feedback-positive-color, #4CAF50);
+        border-color: var(--color-primary);
         background: var(--feedback-positive-hover-bg, #f1f8e9);
-        color: var(--feedback-positive-color, #4CAF50);
+        color: var(--color-primary);
       }
 
       &--selected {
-        border-color: var(--feedback-positive-color, #4CAF50);
-        background: var(--feedback-positive-background, #4CAF50);
+        border-color: var(--color-primary);
+        background: var(--color-primary);
         color: white;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 57, 100, 0.3);
       }
     }
 
     &--negative {
       &:hover {
-        border-color: var(--feedback-negative-color, #f44336);
+        border-color: var(--color-primary);
         background: var(--feedback-negative-hover-bg, #ffebee);
-        color: var(--feedback-negative-color, #f44336);
+        color: var(--color-primary);
       }
 
       &--selected {
-        border-color: var(--feedback-negative-color, #f44336);
-        background: var(--feedback-negative-background, #f44336);
+        border-color: var(--color-primary);
+        background: var(--color-primary);
         color: white;
-        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 57, 100, 0.3);
       }
     }
   }
@@ -141,7 +153,8 @@
       }
 
       &__thank-you-text {
-        color: #2E7D32;
+        font-family: var(--widget-font-family, 'Lato', sans-serif);
+        color: var(--color-primary);
         font-weight: 600;
         font-size: 14px;
         letter-spacing: 0.2px;
@@ -210,11 +223,11 @@
 
 @keyframes thankYouTextPulse {
   0% {
-    color: #2E7D32;
+    color: var(--color-primary);
     transform: scale(1);
   }
   100% {
-    color: #4CAF50;
+    color: var(--color-primary);
     transform: scale(1.02);
   }
 }

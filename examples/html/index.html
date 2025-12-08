@@ -3,17 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HTML Example</title>
+    <title>Rasa Chat Widget - Test</title>
     <script
       type="module"
-      src="https://unpkg.com/@rasahq/chat-widget-ui/dist/rasa-chatwidget/rasa-chatwidget.esm.js"
+      src="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.esm.js?v=97"
     ></script>
     <link
       rel="stylesheet"
-      href="https://unpkg.com/@rasahq/chat-widget-ui/dist/rasa-chatwidget/rasa-chatwidget.css"
+      href="http://localhost:8080/packages/ui/dist/rasa-chatwidget/rasa-chatwidget.css?v=97"
     />
   </head>
   <body>
-    <rasa-chatbot-widget server-url="https://example.com"></rasa-chatbot-widget>
+    <rasa-chatbot-widget 
+      server-url="https://aiasistent.gov.rs"
+      rest-enabled="true"
+      enable-feedback="true"
+      feedback-question-text="Како оцењујете овај разговор?"
+      feedback-thank-you-text="Хвала на повратним информацијама!"
+    >
+      <style>
+        :root {
+          --color-primary: #003964;
+        }
+      </style>
+    </rasa-chatbot-widget>
   </body>
 </html>

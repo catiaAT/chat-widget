@@ -34,8 +34,6 @@ export class RasaChatbotWidget {
   @State() isConnected = false;
   @State() showFeedback = false;
   @State() feedbackSubmitted = false;
-  @State() pendingFeedback = false;
-  @State() botMessageCount = 0;
 
   /**
    * Emitted when the Chat Widget is opened by the user
@@ -167,13 +165,6 @@ export class RasaChatbotWidget {
    * */
   @Prop() enableFeedback: boolean = false;
 
-
-  /**
-   * Rasa flow pattern to trigger feedback. When this pattern is completed, feedback will be shown.
-   * Example: "pattern_completed" or "utter_goodbye"
-   * */
-  @Prop() feedbackTriggerPattern: string = '';
-
   /**
    * Text for the feedback question. If empty, feedback component will not be shown.
    * */
@@ -282,43 +273,43 @@ export class RasaChatbotWidget {
     // If senderID is configured (continuous session), tab is not in focus and user message was not sent from this tab do not render new server message
     if (this.senderId && !document.hasFocus() && !this.sentMessage) return;
 
+    // Don't skip "no_feedback" messages - we need to add them to messages array to check for them
+    // They will be filtered out in renderMessage so they don't display
+
     this.chatWidgetReceivedMessage.emit(data);
     const delay = data.type === MESSAGE_TYPES.SESSION_DIVIDER || data.sender === SENDER.USER ? 0 : configStore().messageDelay;
     
-    // Reset bot message count on new session
+    // Reset feedback state on new session
     if (data.type === MESSAGE_TYPES.SESSION_DIVIDER) {
-      this.botMessageCount = 0;
+      this.feedbackSubmitted = false;
     }
 
     this.messageDelayQueue = this.messageDelayQueue.then(() => {
       return new Promise<void>(resolve => {
+        // Check if this is a "no_feedback" message - if so, skip delay and clear typing indicator immediately
+        const isNoFeedback = 'text' in data && data.text && (data.text as string).trim() === 'no_feedback';
+        
+        if (isNoFeedback) {
+          // For "no_feedback" messages, don't show typing indicator and process immediately
+          this.typingIndicator = false;
+          messageQueueService.enqueueMessage(data);
+          resolve();
+          return;
+        }
+
         this.typingIndicator = delay > 0;
 
         setTimeout(() => {
           messageQueueService.enqueueMessage(data);
           this.typingIndicator = false;
           
-          // Show feedback after bot response is complete (skip first bot message)
-          if (this.pendingFeedback && 'sender' in data && data.sender === SENDER.BOT) {
-            this.botMessageCount++;
-            // Only trigger on second bot message or later
-            if (this.botMessageCount > 1) {
-              // Add a small delay to ensure the message is fully rendered
-              setTimeout(() => {
-                this.showConversationFeedback();
-                this.pendingFeedback = false;
-              }, 500);
-            }
-          }
-
-          // Check for pattern-based feedback trigger (skip first bot message)
+          // Show feedback after bot message is processed
           if (this.enableFeedback && !this.showFeedback && !this.feedbackSubmitted && 
-              this.feedbackTriggerPattern && 'sender' in data && data.sender === SENDER.BOT) {
-            this.botMessageCount++;
-            // Only trigger on second bot message or later AND if message type matches pattern
-            if (this.botMessageCount > 1 && data.type === this.feedbackTriggerPattern) {
-              this.checkPatternTrigger();
-            }
+              'sender' in data && data.sender === SENDER.BOT) {
+            // Add a delay to ensure the message is fully rendered and added to this.messages
+            setTimeout(() => {
+              this.showConversationFeedback();
+            }, 800);
           }
           
           // If senderID is configured and message was sent from this tab, broadcast event to share chat history with other tabs with same senderID 
@@ -383,6 +374,9 @@ export class RasaChatbotWidget {
     this.messages = [...this.messages, { type: 'text', text: event.detail, sender: 'user', timestamp }];
     this.scrollToBottom();
     this.sentMessage = true;
+    // Reset feedback state when user sends a new message (new interaction turn)
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
   }
 
   @Listen('quickReplySelected')
@@ -396,6 +390,9 @@ export class RasaChatbotWidget {
     this.client.sendMessage({ text: quickReply.text, reply: quickReply.reply, timestamp }, true, key - 1);
     this.chatWidgetQuickReply.emit(quickReply.reply);
     this.sentMessage = true;
+    // Reset feedback state when user selects a quick reply (new interaction turn)
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
   }
 
   @Listen('linkClicked')
@@ -413,19 +410,60 @@ export class RasaChatbotWidget {
   @Listen('feedbackSubmitted')
   // @ts-ignore-next-line
   private handleFeedbackSubmitted(event: CustomEvent<{ rating: 'positive' | 'negative'; helpful: boolean }>) {
-    // Don't set feedbackSubmitted immediately - let the component show thank you message
-    // this.feedbackSubmitted = true;
+    // Set feedbackSubmitted to prevent showing feedback again in this conversation
+    this.feedbackSubmitted = true;
     
     // Allow time for thank you message to show, then hide the component
     setTimeout(() => {
       this.showFeedback = false;
     }, 3500); // 3.5 seconds to allow thank you message to show and fade
     
-    // Handle feedback submission by setting slot directly via REST API
+    // Handle feedback submission by directly setting slot in Rasa tracker
     const slotValue = event.detail.rating === 'positive' ? 'positive' : 'negative';
     
-    // Set slot directly via Rasa REST API
-    this.setWidgetFeedbackSlot(slotValue);
+    // Set slot directly in Rasa tracker via REST API (with better error handling)
+    (async () => {
+      try {
+        // Simple check - if serverUrl is not available, skip slot setting
+        if (!this.serverUrl) {
+          return;
+        }
+        
+        // Extract base URL from server URL (remove /webhooks/rest/webhook if present)
+        let baseUrl = this.serverUrl;
+        if (baseUrl.includes('/webhooks/rest/webhook')) {
+          baseUrl = baseUrl.replace('/webhooks/rest/webhook', '');
+        }
+        
+        // Get current session ID
+        const sessionId = this.client?.sessionId || 'default';
+        
+        // Set slot via Rasa tracker events API
+        const response = await fetch(`${baseUrl}/conversations/${sessionId}/tracker/events`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Add authentication headers if needed
+            // 'Authorization': 'Bearer your-token',
+            // 'X-Auth-Token': 'your-token',
+            // 'API-Key': 'your-api-key'
+          },
+          body: JSON.stringify({
+            "event": "slot",
+            "name": "widget_feedback",
+            "value": slotValue,
+            "timestamp": null
+          })
+        });
+        
+        // Slot setting response handled silently
+        if (!response.ok) {
+          // Slot setting failed - error handled silently
+        }
+      } catch (error) {
+        // Slot setting error handled silently
+      }
+    })();
     
     // Emit the event safely
     try {
@@ -437,58 +475,25 @@ export class RasaChatbotWidget {
     }
   }
 
-  /**
-   * Set widget feedback slot directly via Rasa REST API
-   * This bypasses conversation flow and NLU processing
-   */
-  private async setWidgetFeedbackSlot(feedbackValue: 'positive' | 'negative'): Promise<void> {
-    try {
-      // Extract base URL from server URL (remove /webhooks/rest/webhook if present)
-      let baseUrl = this.serverUrl;
-      if (baseUrl.includes('/webhooks/rest/webhook')) {
-        baseUrl = baseUrl.replace('/webhooks/rest/webhook', '');
-      }
-      
-      // Get current session ID
-      const sessionId = this.client?.sessionId || 'default';
-      
-      // Set slot via REST API
-      const response = await fetch(`${baseUrl}/conversations/${sessionId}/tracker/events`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add authentication headers if needed
-          // 'Authorization': 'Bearer your-token'
-        },
-        body: JSON.stringify({
-          "event": "slot",
-          "name": "widget_feedback",
-          "value": feedbackValue,
-          "timestamp": null
-        })
-      });
-      
-      if (response.ok) {
-        console.log('✅ Widget feedback recorded successfully:', feedbackValue);
-      } else {
-        console.error('❌ Failed to record feedback:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('❌ Error setting widget feedback slot:', error);
-    }
-  }
 
   private showConversationFeedback(): void {
-    if (this.enableFeedback && this.messages.length > 0 && this.feedbackQuestionText.trim()) {
-      this.showFeedback = true;
+    if (!this.enableFeedback || this.messages.length === 0 || !this.feedbackQuestionText.trim()) {
+      return;
     }
-  }
 
-  private checkPatternTrigger(): void {
-    // Add a small delay to ensure the message is fully rendered
-    setTimeout(() => {
-      this.showConversationFeedback();
-    }, 500);
+    const lastMessage = this.messages[this.messages.length - 1];
+    
+    // Don't show feedback if the last message is "no_feedback"
+    if (lastMessage && 'text' in lastMessage && lastMessage.text && (lastMessage.text as string).trim() === 'no_feedback') {
+      return;
+    }
+
+    // Don't show feedback if the last message is a quick_reply (in the middle of a flow)
+    if (lastMessage && lastMessage.type === MESSAGE_TYPES.QUICK_REPLY) {
+      return;
+    }
+
+    this.showFeedback = true;
   }
 
   private getAltText() {
@@ -502,18 +507,29 @@ export class RasaChatbotWidget {
   @Watch('messages')
   onMessagesChange() {
     if (this.cachedMessages.length !== this.messages.length) {
-      this.cachedMessages = this.messages.map((message, key) => this.renderMessage(message, false, key));
-      
-      // Check if we should show feedback after certain number of messages
-      // Only use message count if no pattern-based trigger is configured
-      if (this.enableFeedback && !this.showFeedback && !this.feedbackSubmitted && 
-          !this.feedbackTriggerPattern) {
-        this.pendingFeedback = true;
-      }
+      const previousLength = this.cachedMessages.length;
+      const renderedMessages = this.messages.map((message, key) => {
+        const rendered = this.renderMessage(message, false, key);
+        // If message was filtered out (no_feedback) and it's the newly added message, complete rendering to unblock the queue
+        if (rendered === null && 'text' in message && message.text && (message.text as string).trim() === 'no_feedback' && key >= previousLength) {
+          // Complete rendering for filtered messages to prevent queue from getting stuck
+          setTimeout(() => {
+            messageQueueService.completeRendering();
+          }, 0);
+        }
+        return rendered;
+      });
+      this.cachedMessages = renderedMessages;
     }
   }
 
   private renderMessage(message: Message, isHistory = false, key) {
+    // Always filter out "no_feedback" messages - these are control messages from Rasa
+    // This filtering is independent of feedback settings (enableFeedback prop)
+    if ('text' in message && message.text && (message.text as string).trim() === 'no_feedback') {
+      return null;
+    }
+
     switch (message.type) {
       case MESSAGE_TYPES.SESSION_DIVIDER:
         return <rasa-session-divider sessionStartDate={message.startDate} sessionStartedText={this.sessionStartedText} key={key}></rasa-session-divider>;

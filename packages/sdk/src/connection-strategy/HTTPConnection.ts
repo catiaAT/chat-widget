@@ -71,7 +71,8 @@ export class HTTPConnection implements ConnectionStrategy {
         return response.json() as Promise<HttpResponse[]>;
       })
       .then(data => {
-        this.normalizeResponse(data).forEach((message) => {
+        const normalized = this.normalizeResponse(data);
+        normalized.forEach((message) => {
           this.onBotResponse(message);
         });
       })

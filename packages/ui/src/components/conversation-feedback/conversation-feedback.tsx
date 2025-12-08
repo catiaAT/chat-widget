@@ -1,4 +1,5 @@
 import { Component, Prop, Event, EventEmitter, h, State } from '@stencil/core';
+import { feedbackIcons } from './icons';
 
 @Component({
   tag: 'rasa-conversation-feedback',
@@ -96,9 +97,8 @@ export class RasaConversationFeedback {
                   onClick={() => this.handleRatingClick('positive')}
                   disabled={this.selectedRating !== null}
                   aria-label="Thumbs up - positive rating"
-                >
-                  👍
-                </button>
+                  innerHTML={feedbackIcons.positive}
+                ></button>
                 
                 <button
                   class={{
@@ -109,9 +109,8 @@ export class RasaConversationFeedback {
                   onClick={() => this.handleRatingClick('negative')}
                   disabled={this.selectedRating !== null}
                   aria-label="Thumbs down - negative rating"
-                >
-                  👎
-                </button>
+                  innerHTML={feedbackIcons.negative}
+                ></button>
               </div>
             </div>
           ) : (
