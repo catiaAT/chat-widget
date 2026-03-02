@@ -161,6 +161,21 @@ export class RasaChatbotWidget {
   @Prop() restEnabled: boolean = false;
 
   /**
+   * If set to True, the widget will be embedded in the page (no launcher, relative positioning).
+   * */
+  @Prop() embedded: boolean = false;
+
+  /**
+   * If set to True, shows a download button in the header to save the conversation.
+   * */
+  @Prop() downloadable: boolean = false;
+
+  /**
+   * If set to True, shows a restart button in the header to reset the conversation.
+   * */
+  @Prop() restartEnabled: boolean = false;
+
+  /**
    * If set to True, shows conversation feedback component at the bottom of the chat.
    * */
   @Prop() enableFeedback: boolean = false;
@@ -203,6 +218,7 @@ export class RasaChatbotWidget {
       toggleFullScreen,
       inputMessagePlaceholder,
       restEnabled,
+      embedded,
     } = this;
     setConfigStore({
       serverUrl,
@@ -218,7 +234,7 @@ export class RasaChatbotWidget {
       messageDelay: streamMessages ? 0 : messageDelay,
       autoOpen,
       errorMessage,
-      toggleFullScreen,
+      toggleFullScreen: embedded ? false : toggleFullScreen,
       inputMessagePlaceholder,
       restEnabled,
     });
@@ -244,7 +260,7 @@ export class RasaChatbotWidget {
       widgetState.getState().state.connected = false;
     });
 
-    if (this.autoOpen) {
+    if (this.autoOpen || this.embedded) {
       this.toggleOpenState();
     }
 
@@ -350,7 +366,8 @@ export class RasaChatbotWidget {
   }
 
   private toggleOpenState = (): void => {
-    const nextValue = !this.isOpen;
+    const nextValue = this.embedded ? true : !this.isOpen;
+    if (this.isOpen === nextValue) return;
     this.isOpen = nextValue;
     this.client.reconnection(nextValue);
     clearTimeout(this.disconnectTimeout);
@@ -501,7 +518,49 @@ export class RasaChatbotWidget {
   }
 
   private toggleFullscreenMode = () => {
+    if (this.embedded) return;
     this.isFullScreen = !this.isFullScreen;
+  };
+
+  private downloadTranscript = (e: MouseEvent) => {
+    e.stopPropagation();
+    const content = this.messages.map(msg => {
+      const sender = 'sender' in msg ? (msg.sender === 'user' ? 'User' : 'Bot') : 'System';
+      const timestamp ='timestamp' in msg? new Date(msg.timestamp).toLocaleString() : '';
+      let text = '';
+      
+      if ('text' in msg && typeof msg.text === 'string') {
+        text = msg.text;
+      } else if (msg.type === 'image') {
+        text = '[Image]';
+      } else {
+        text = `[${msg.type}]`;
+      }
+      return `[${timestamp}] ${sender}: ${text}`;
+    }).join('\n');
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-transcript-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  
+  private restartSession = (e: MouseEvent) => {
+    e.stopPropagation();
+    const text = '/restart';
+    const timestamp = new Date();
+    this.client.sendMessage({ text, timestamp });
+    this.chatWidgetSentMessage.emit(text);
+    this.messages = [];
+    this.messageHistory = [];
+    this.sentMessage = true;
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
   };
 
   @Watch('messages')
@@ -609,14 +668,65 @@ export class RasaChatbotWidget {
 
     return (
       <global-error-handler>
-        <slot />
         <div class={widgetClassList}>
-          <div class="rasa-chatbot-widget__container">
+          {this.embedded && (
+            <style>{`
+              :host {
+                display: block;
+                width: 100%;
+                height: 100%;
+              }
+              .rasa-chatbot-widget {
+                position: relative !important;
+                bottom: auto !important;
+                right: auto !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: none !important;
+                max-width: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+              }
+              .rasa-chatbot-widget__container {
+                height: 100% !important;
+                width: 100% !important;
+                max-height: none !important;
+                max-width: none !important;
+                border-radius: 0 !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+              }
+            `}</style>
+          )}
+{/*           {!this.embedded && (
+            <style>{`
+              .rasa-chatbot-widget:not(.fullscreen) {
+                width: var(--widget-width, 370px);
+              }
+            `}</style>
+          )} */}
+          {this.isOpen && this.downloadable && (
+            <style>{`
+              .rasa-chat-input__input {
+                padding-right: 100px !important;
+              }
+              .rasa-download-button {
+                color: #bf3030ff;
+                transition: color 0.2s ease-in-out;
+              }
+              .rasa-download-button:hover {
+                color: var(--color-primary, #000);
+              }
+            `}</style>
+          )}
+          <div class="rasa-chatbot-widget__container" style={{ position: 'relative' }}>
+            <slot />
             <Messenger 
               isOpen={this.isOpen} 
               toggleFullScreenMode={this.toggleFullscreenMode} 
               isFullScreen={this.isFullScreen}
               hasFeedback={this.enableFeedback && this.isOpen}
+              restartEnabled={this.restartEnabled}
+              onRestart={this.restartSession}
             >
               {this.messageHistory.map((message, key) => this.renderMessage(message, true, key))}
               {this.cachedMessages}
@@ -631,15 +741,42 @@ export class RasaChatbotWidget {
                 ></rasa-conversation-feedback>
               )}
             </Messenger>
-            <div role="button" onClick={this.toggleOpenState} class="rasa-chatbot-widget__launcher" aria-label={this.getAltText()}>
-              {configStore().widgetIcon ? (
-                <img src={configStore().widgetIcon} class="rasa-chatbot-widget__launcher-image"></img>
-              ) : this.isOpen ? (
-                <rasa-icon-close-chat size={18} />
-              ) : (
-                <rasa-icon-chat />
-              )}
-            </div>
+            {this.isOpen && this.downloadable && (
+              <div
+                onClick={this.downloadTranscript}
+                class="rasa-download-button"
+                title="Download Conversa"
+                style={{
+                  position: 'absolute',
+                  bottom: (this.embedded || this.isFullScreen) ? '10px' : '105px',
+                  right: '55px',
+                  height: '40px',
+                  width: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: '10000',
+                  cursor: 'pointer'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
+            )}
+            {!this.embedded && (
+              <div role="button" onClick={this.toggleOpenState} class="rasa-chatbot-widget__launcher" aria-label={this.getAltText()} title={this.getAltText()}>
+                {configStore().widgetIcon ? (
+                  <img src={configStore().widgetIcon} class="rasa-chatbot-widget__launcher-image"></img>
+                ) : this.isOpen ? (
+                  <rasa-icon-close-chat size={18} />
+                ) : (
+                  <rasa-icon-chat />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </global-error-handler>

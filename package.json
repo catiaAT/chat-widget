@@ -5,7 +5,7 @@
   ],
   "scripts": {
     "dev": "lerna run dev --parallel",
-    "storybook": "lerna run build && lerna run storybook",
+    "storybook": "lerna run build && npm --prefix storybook run storybook",
     "test": "lerna run test --verbose",
     "build": "lerna run build --concurrency 1",
     "lint": "lerna run lint",

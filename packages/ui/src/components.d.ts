@@ -78,6 +78,14 @@ export namespace Components {
          */
         "displayTimestamp": boolean;
         /**
+          * If set to True, shows a download button in the header to save the conversation.
+         */
+        "downloadable": boolean;
+        /**
+          * If set to True, the widget will be embedded in the page (no launcher, relative positioning).
+         */
+        "embedded": boolean;
+        /**
           * If set to True, shows conversation feedback component at the bottom of the chat.
          */
         "enableFeedback": boolean;
@@ -117,6 +125,10 @@ export namespace Components {
           * If set to True, instead of the default WebSocket communication, the widget will use the HTTP protocol.
          */
         "restEnabled": boolean;
+        /**
+          * If set to True, shows a restart button in the header to reset the conversation.
+         */
+        "restartEnabled": boolean;
         /**
           * ID of a user engaged with the Chat Widget
          */
@@ -1022,6 +1034,14 @@ declare namespace LocalJSX {
          */
         "displayTimestamp"?: boolean;
         /**
+          * If set to True, shows a download button in the header to save the conversation.
+         */
+        "downloadable"?: boolean;
+        /**
+          * If set to True, the widget will be embedded in the page (no launcher, relative positioning).
+         */
+        "embedded"?: boolean;
+        /**
           * If set to True, shows conversation feedback component at the bottom of the chat.
          */
         "enableFeedback"?: boolean;
@@ -1097,6 +1117,10 @@ declare namespace LocalJSX {
           * If set to True, instead of the default WebSocket communication, the widget will use the HTTP protocol.
          */
         "restEnabled"?: boolean;
+        /**
+          * If set to True, shows a restart button in the header to reset the conversation.
+         */
+        "restartEnabled"?: boolean;
         /**
           * ID of a user engaged with the Chat Widget
          */

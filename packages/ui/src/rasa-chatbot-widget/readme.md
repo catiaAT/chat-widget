@@ -13,6 +13,8 @@
 | `autoOpen`                | `auto-open`                 | If set to True, it will open the chat, triggering the 'initialPayload' immediately if set.              | `boolean` | `false`                    |
 | `botIcon`                 | `bot-icon`                  | Static icon for the chatbot                                                                             | `string`  | `''`                       |
 | `displayTimestamp`        | `display-timestamp`         | Indicates if a message timestamp should be displayed                                                    | `boolean` | `false`                    |
+| `downloadable`            | `downloadable`              | If set to True, shows a download button in the header to save the conversation.                         | `boolean` | `false`                    |
+| `embedded`                | `embedded`                  | If set to True, the widget will be embedded in the page (no launcher, relative positioning).            | `boolean` | `false`                    |
 | `enableFeedback`          | `enable-feedback`           | If set to True, shows conversation feedback component at the bottom of the chat.                        | `boolean` | `false`                    |
 | `errorMessage`            | `error-message`             | Message that should be displayed if an error occurs                                                     | `string`  | `'Something bad happened'` |
 | `feedbackQuestionText`    | `feedback-question-text`    | Text for the feedback question. If empty, feedback component will not be shown.                         | `string`  | `''`                       |
@@ -23,6 +25,7 @@
 | `messageDelay`            | `message-delay`             | Indicates time between message is received and printed.                                                 | `number`  | `600`                      |
 | `messageTimestamp`        | `message-timestamp`         | Format of the message timestamp                                                                         | `string`  | `''`                       |
 | `restEnabled`             | `rest-enabled`              | If set to True, instead of the default WebSocket communication, the widget will use the HTTP protocol.  | `boolean` | `false`                    |
+| `restartEnabled`          | `restart-enabled`           | If set to True, shows a restart button in the header to reset the conversation.                         | `boolean` | `false`                    |
 | `senderId`                | `sender-id`                 | ID of a user engaged with the Chat Widget                                                               | `string`  | `''`                       |
 | `serverUrl` _(required)_  | `server-url`                | Url of the Rasa chatbot backend server (example: https://example.com)                                   | `string`  | `undefined`                |
 | `sessionStartedText`      | `session-started-text`      | Text to display before the session start date in session divider                                        | `string`  | `'Session started on'`     |

@@ -4,7 +4,7 @@ function App() {
   return (
     <div>
       <RasaChatbotWidget
-        serverUrl="https://example.com"
+        serverUrl="https://assistant.dev.catiabot.pt"
         onChatWidgetOpened={console.log}
       />
     </div>
