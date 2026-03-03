@@ -14,13 +14,14 @@ export const parseChatHistory = (chatHistory) => {
         startDate: new Date(session.sessionStart),
       });
 
-      const transformedMessages = session.messages.map<Message>(
-        (message) => {
+      const transformedMessages = session.messages.reduce<Message[]>((messages, message) => {
+        try {
           const messageType = determineMessageType(message);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return MessageParsers[messageType](message as any, message.sender);
-        }
-      );
+          messages.push(MessageParsers[messageType](message as any, message.sender));
+        } catch {}
+        return messages;
+      }, []);
 
       acc.push(...transformedMessages);
 

@@ -4,7 +4,8 @@
   "description": "This repository provides an example of how to integrate and use a Rasa chatbot widget built with StencilJS in a simple HTML project.",
   "main": "index.js",
   "scripts": {
-    "dev": "npx http-server"
+    "sync:widget": "cd ../.. && npm run -w packages/ui build && rm -rf examples/html/rasa-chatwidget && cp -R packages/ui/dist/rasa-chatwidget examples/html/rasa-chatwidget",
+    "dev": "npm run sync:widget && npx http-server"
   },
   "repository": {
     "type": "git",

@@ -15,9 +15,30 @@
 
   &__buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
-    padding: 0 40px;
+    align-items: center;
+    padding: 6px 40px 2px;
+    background-color: var(--color-secondary);
+    border-radius: 12px;
+
+    rasa-button,
+    rasa-link-button {
+      display: inline-flex;
+      transition: transform 0.16s ease, filter 0.16s ease;
+      --message-button-background-color: #1F5AA6;
+      --message-button-border-color: #1F5AA6;
+      --message-button-color: #FFFFFF;
+      --message-selected-button-background-color: #1F5AA6;
+      --message-selected-button-border-color: #1F5AA6;
+      --message-selected-button-color: #FFFFFF;
+    }
+
+    rasa-button:hover,
+    rasa-link-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.98);
+    }
 
     rasa-text::part(text) {
       width: calc(100%);
@@ -30,7 +51,7 @@
 
     &--disabled {
       pointer-events: none;
-      opacity: 0.5;
+      opacity: 0.6;
     }
   }
 }

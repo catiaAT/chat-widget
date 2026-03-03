@@ -6,22 +6,22 @@
     <title>Rasa Chat Widget - Test</title>
     <script
       type="module"
-      src="./rasa-chatwidget/rasa-chatwidget.esm.js?v=98"
+      src="./rasa-chatwidget/rasa-chatwidget.esm.js?v=106"
     ></script>
     <link
       rel="stylesheet"
-      href="./rasa-chatwidget/rasa-chatwidget.css?v=98"
+      href="./rasa-chatwidget/rasa-chatwidget.css?v=106"
     />
 
     <style>
-      /* Portal das Finanças color scheme */
+      /* Portal das Finanças color scheme - versão mais clara */
       :root {
-        --color-primary: #003d6b;      /* Azul marinho */
-        --color-secondary: #005eb8;    /* Azul claro */
-        --color-text: #333333;
-        --color-text-light: #666666;
-        --color-border: #e0e0e0;
-        --color-background: #f9f9f9;
+        --color-primary: #102d70;      /* Azul escuro institucional */
+        --color-secondary: #4a90e2;    /* Azul secundário suave */
+        --color-text: #2c3e50;
+        --color-text-light: #5a6c7d;
+        --color-border: #e8eef2;
+        --color-background: #f8fafc;
       }
 
       /* Disclaimer overlay styling */
@@ -55,21 +55,22 @@
 
       .disclaimer-content {
         max-width: 280px;
-        text-align: center;
+        text-align: justify;
       }
 
       .disclaimer-content h2 {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 20px;
+        font-size: 11px;
         font-weight: 700;
         color: var(--color-primary);
         margin: 0 0 12px;
         letter-spacing: -0.3px;
+        text-align: center;
       }
 
       .disclaimer-content p {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 13px;
+        font-size: 11px;
         line-height: 1.7;
         color: var(--color-text-light);
         margin: 0 0 20px;
@@ -87,12 +88,14 @@
         border-radius: 8px;
         padding: 11px 28px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.3px;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 4px 12px rgba(0, 61, 107, 0.2);
+        display: block;
+        margin: 0 auto;
       }
 
       .disclaimer-accept-btn:hover {
@@ -106,13 +109,16 @@
     </style>
   </head>
   <body>
+    <!-- old server-url="https://assistant.dev.catiabot.pt" -->
     <rasa-chatbot-widget
       id="chat-widget"
       widget-title="Ajuda Online - LLM poc"
-      server-url="https://assistant.dev.catiabot.pt"
-      rest-enabled="true"
+      server-url="https://catia.portaldasfinancas.gov.pt"
+      widget-icon="./rasa-chatwidget/assets/images/catia_horizontal.png"
+      bot-icon="./rasa-chatwidget/assets/images/catia_vertical.png"
+      rest-enabled="false"
       initial-payload=""
-      enable-feedback="false"
+      enable-feedback="true"
       feedback-question-text="Gostaria de classificar esta conversa?"
       feedback-thank-you-text="Obrigado por classificar!"
       downloadable="true"
@@ -121,21 +127,27 @@
       toggle-full-screen="true"
       font-family="Verdana, sans-serif"
       auto-open="false"
+      input-message-placeholder=""
     >
       <!-- Disclaimer injected into widget slot -->
       <div id="disclaimer-overlay">
         <div class="disclaimer-content">
           <h2>Bem-vindo</h2>
-          <p>Este assistente virtual destina-se a fins informativos. As respostas são geradas automaticamente e não substituem aconselhamento profissional.</p>
-          <p>Ao continuar, aceita os nossos termos de serviço e política de privacidade.</p>
+          <p>As informações que enviar são utilizadas apenas para lhe prestar esclarecimentos, não sendo utilizadas para efeitos da sua situação tributária específica.</p>
+          <p>Não abrangido pelo artigo 68.º da Lei Geral Tributária. Não necessita de enviar dados pessoais que permitam a sua identificação por parte da AT. Para processamento e arquivo dos dados deste sistema, a AT poderá recorrer a serviços de computação na "cloud".</p>
+          <p>A utilização deste serviço requer um "cookie" mensal para agregar as interações do mesmo utilizador nesse período.</p>
+          <p>Para melhoria do serviço prestado, são arquivadas até 180 dias as conversas mantidas, bem como o seu IP e as versões do sistema operativo e navegador de internet.</p>
+          <p>Consulte a <a href="https://info.portaldasfinancas.gov.pt/pt/quem_somos/privacidade/Pages/privacidade.aspx" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">Política de Privacidade e Segurança da AT</a>.</p>
           <button id="accept-btn" class="disclaimer-accept-btn">Aceitar e continuar</button>
         </div>
       </div>
 
       <style>
         :root {
-          --color-primary: #003d6b;     /* Portal das Finanças blue */
-          --color-secondary: #005eb8;   /* Secondary blue */
+          --color-primary: #102d70;     /* Azul escuro institucional */
+          --color-secondary: #fbfbfb;   /* Cinzento claro */
+          --header-background-color: #102d70;
+          --header-color: #ffffff;
         }
       </style>
     </rasa-chatbot-widget>
@@ -147,12 +159,38 @@
         const acceptBtn = document.getElementById('accept-btn');
         const STORAGE_KEY = 'disclaimer_accepted';
 
+        function attachSocketDebugLogs() {
+          const socket = widget?.client?.socket;
+          if (!socket || socket.__debugLogsAttached) {
+            return;
+          }
+
+          socket.__debugLogsAttached = true;
+          socket.on('connect', () => console.log('[socket] connected:', socket.id));
+          socket.on('disconnect', (reason) => console.log('[socket] disconnected:', reason));
+          socket.on('connect_error', (error) => console.error('[socket] connect_error:', error?.message || error));
+          socket.on('bot_uttered', (payload) => console.log('[socket] bot_uttered:', payload));
+          socket.io?.on('reconnect_attempt', (attempt) => console.log('[socket] reconnect_attempt:', attempt));
+          socket.io?.on('reconnect', (attempt) => console.log('[socket] reconnected on attempt:', attempt));
+        }
+
+        function triggerInitialIntent() {
+          const initialIntent = '/o_que_sabes';
+          widget.dispatchEvent(new CustomEvent('sendMessageHandler', {
+            detail: initialIntent,
+            bubbles: true,
+            composed: true,
+          }));
+          console.log('[widget] initial intent sent:', initialIntent);
+        }
+
         // Clear disclaimer acceptance on page load to start fresh
         // (or comment this line if you want it to persist across page reloads)
         sessionStorage.removeItem(STORAGE_KEY);
 
         // When widget opens, show disclaimer only if not yet accepted
         widget.addEventListener('chatWidgetOpened', function() {
+          attachSocketDebugLogs();
           // Check if disclaimer was already accepted this session
           const isAccepted = sessionStorage.getItem(STORAGE_KEY) === 'true';
           
@@ -166,8 +204,8 @@
           } else {
             console.log('Hiding disclaimer overlay and triggering payload');
             overlay.classList.remove('visible');
-            // Already accepted, trigger payload immediately
-            widget.setAttribute('initial-payload', '/restart');
+            // Already accepted, send initial intent immediately
+            triggerInitialIntent();
           }
         });
 
@@ -176,17 +214,27 @@
           overlay.classList.remove('visible');
         });
 
+        widget.addEventListener('chatWidgetSentMessage', function(event) {
+          console.log('[widget] sent:', event.detail);
+        });
+
+        widget.addEventListener('chatWidgetReceivedMessage', function(event) {
+          console.log('[widget] received:', event.detail);
+        });
+
         // When user accepts, hide disclaimer and trigger payload
         acceptBtn.addEventListener('click', function() {
           overlay.classList.remove('visible');
           // Save acceptance in session storage
           sessionStorage.setItem(STORAGE_KEY, 'true');
           console.log('Disclaimer accepted, saved to sessionStorage');
-          // Trigger the payload to start conversation
+          // Send initial intent to start conversation
           setTimeout(() => {
-            widget.setAttribute('initial-payload', '/restart');
+            triggerInitialIntent();
           }, 300);
         });
+
+        setTimeout(attachSocketDebugLogs, 800);
       })();
     </script>
   </body>

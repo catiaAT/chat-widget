@@ -1,6 +1,6 @@
 :root {
   --font-family: var(--widget-font-family, 'Lato', sans-serif);
-  --launcher-background-color: var(--color-primary);
+  --launcher-background-color: #e9e9e9;
   --launcher-color: var(--color-secondary);
   --header-background-color: var(--color-primary);
   --header-color: var(--color-secondary);
@@ -10,18 +10,18 @@
   --input-background-color: var(--color-secondary);
   --input-color: var(--color-secondary-opposite);
   --input-send-color: var(--color-primary);
-  --message-robot-icon-background-color: var(--color-primary);
+  --message-robot-icon-background-color: #e9e9e9;
   --message-robot-icon-color: var(--color-secondary);
-  --message-robot-background-color: var(--color-secondary-10);
-  --message-robot-color: var(--color-secondary-90);
+  --message-robot-background-color: #acacac;
+  --message-robot-color: #1F2937;
   --message-user-background-color: var(--color-primary);
   --message-user-color: var(--color-secondary);
-  --message-button-color: var(--color-primary);
-  --message-button-background-color: var(--color-secondary);
-  --message-button-border-color: var(--color-primary);
-  --message-selected-button-color: var(--color-secondary);
-  --message-selected-button-background-color: var(--color-primary);
-  --message-selected-button-border-color: var(--color-primary);
+  --message-button-color: #FFFFFF;
+  --message-button-background-color: #1F5AA6;
+  --message-button-border-color: #1F5AA6;
+  --message-selected-button-color: #FFFFFF;
+  --message-selected-button-background-color: #1F5AA6;
+  --message-selected-button-border-color: #1F5AA6;
   --accordion-background-color: var(--color-secondary-10);
   --session-divider-color: var(--color-secondary-10);
   --session-divider-text-color: var(--color-secondary-40);

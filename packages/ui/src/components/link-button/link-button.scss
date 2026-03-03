@@ -1,7 +1,7 @@
 .rasa-link-button {
   display: inline-flex;
-  height: 32px; // Adjusted height to account for border
-  padding: 8px 12px; // Adjusted padding to maintain total height of 50px
+  height: 36px; // Adjusted height to account for border
+  padding: 10px 14px; // Adjusted padding to maintain premium proportions
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -15,11 +15,18 @@
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0.3px;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box; // Ensure padding and border are included in height calculation
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #174A8C;
+    color: #FFFFFF;
+    border: 1px solid #174A8C;
+  }
 
   &--selected {
     background-color: var(--message-selected-button-background-color);

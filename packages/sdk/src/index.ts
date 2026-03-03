@@ -60,8 +60,13 @@ export class Rasa extends EventEmitter {
   //#region Connection Event Handlers
   private onBotResponse = (data: unknown): void => {
     const timestamp = new Date();
-    this.storageService.setMessage({ sender: SENDER.BOT, ...(data as object), timestamp }, this.sessionId);
-    this.trigger('message', messageParser({ ...(data as object), timestamp }, SENDER.BOT));
+    try {
+      const parsedMessage = messageParser({ ...(data as object), timestamp }, SENDER.BOT);
+      this.storageService.setMessage({ sender: SENDER.BOT, ...(data as object), timestamp }, this.sessionId);
+      this.trigger('message', parsedMessage);
+    } catch {
+      console.warn('Skipping unsupported bot message format', data);
+    }
   };
 
   private onSessionConfirm = (): void => {

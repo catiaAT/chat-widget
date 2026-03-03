@@ -400,11 +400,22 @@ export class RasaChatbotWidget {
   // @ts-ignore-next-line
   private quickReplySelected({ detail: { quickReply, key } }: CustomEvent<{ quickReply: QuickReply; key: number }>) {
     const timestamp = new Date();
-    this.messages = [...this.messages, { type: 'text', text: quickReply.text, sender: 'user', timestamp }];
+
+    const messageHistoryKey = this.messages
+      .slice(0, key + 1)
+      .reduce((historyKey, message) =>
+        message.type === MESSAGE_TYPES.SESSION_DIVIDER ? historyKey : historyKey + 1,
+      -1);
+
     const updatedMessage = this.messages[key] as QuickReplyMessage;
-    updatedMessage.replies.find(qr => qr.reply === quickReply.reply).isSelected = true;
-    this.messages[key] = updatedMessage;
-    this.client.sendMessage({ text: quickReply.text, reply: quickReply.reply, timestamp }, true, key - 1);
+    const selectedReply = updatedMessage?.replies?.find(qr => qr.reply === quickReply.reply);
+    if (selectedReply) {
+      selectedReply.isSelected = true;
+      this.messages[key] = updatedMessage;
+    }
+
+    this.messages = [...this.messages, { type: 'text', text: quickReply.text, sender: 'user', timestamp }];
+    this.client.sendMessage({ text: quickReply.text, reply: quickReply.reply, timestamp }, true, messageHistoryKey);
     this.chatWidgetQuickReply.emit(quickReply.reply);
     this.sentMessage = true;
     // Reset feedback state when user selects a quick reply (new interaction turn)

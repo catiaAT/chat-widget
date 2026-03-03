@@ -14,7 +14,10 @@ export const config: Config = {
     {
       type: 'dist',
       esmLoaderPath: '../loader',
-      copy: [{ src: 'assets/fonts', dest: 'assets/fonts' }],
+      copy: [
+        { src: 'assets/fonts', dest: 'assets/fonts' },
+        { src: 'assets/images', dest: 'assets/images' },
+      ],
     },
     {
       type: 'docs-readme',
@@ -26,7 +29,10 @@ export const config: Config = {
     {
       type: 'www',
       serviceWorker: null, // disable service workers
-      copy: [{ src: 'assets/fonts', dest: 'build/assets/fonts' }],
+      copy: [
+        { src: 'assets/fonts', dest: 'build/assets/fonts' },
+        { src: 'assets/images', dest: 'build/assets/images' },
+      ],
     },
     reactOutputTarget({
       stencilPackageName: '@rasahq/chat-widget-ui',
