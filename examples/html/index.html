@@ -24,14 +24,27 @@
         --color-background: #f8fafc;
       }
 
+      rasa-chatbot-widget {
+        --color-secondary: #fbfbfb;
+        --header-background-color: #102d70;
+        --header-color: #ffffff;
+        --disclaimer-background-color: #ffffff;
+        --disclaimer-text-color: #2c3e50;
+        --disclaimer-title-color: #102d70;
+        --disclaimer-link-color: #102d70;
+        --disclaimer-button-background-color: #102d70;
+        --disclaimer-button-color: #ffffff;
+      }
+
     </style>
   </head>
   <body>
-    <!-- old server-url="https://assistant.dev.catiabot.pt" -->
+    <!-- old server-url="https://catia.portaldasfinancas.gov.pt" -->
+     
     <rasa-chatbot-widget
       id="chat-widget"
       widget-title="Ajuda Online - LLM poc"
-      server-url="https://catia.portaldasfinancas.gov.pt"
+      server-url="https://assistant.dev.catiabot.pt"
       widget-icon="./rasa-chatwidget/assets/images/catia_horizontal.png"
       bot-icon="./rasa-chatwidget/assets/images/catia_vertical.png"
       rest-enabled="false"
@@ -45,7 +58,7 @@
       toggle-full-screen="true"
       font-family="Verdana, sans-serif"
       auto-open="false"
-      input-message-placeholder=""
+      input-message-placeholder="Escreva a sua mensagem..."
       message-metadata='{"source":"html-example","tenant":"at"}'
       disclaimer-enabled="true"
       disclaimer-storage-key="disclaimer_accepted"
@@ -56,16 +69,7 @@
       disclaimer-link-url="https://info.portaldasfinancas.gov.pt/pt/quem_somos/privacidade/Pages/privacidade.aspx"
       disclaimer-accept-button-text="Aceitar e continuar"
       disclaimer-initial-payload="/o_que_sabes"
-    >
-      <style>
-        :root {
-          --color-primary: #102d70;     /* Azul escuro institucional */
-          --color-secondary: #fbfbfb;   /* Cinzento claro */
-          --header-background-color: #102d70;
-          --header-color: #ffffff;
-        }
-      </style>
-    </rasa-chatbot-widget>
+    ></rasa-chatbot-widget>
 
     <script>
       (function() {

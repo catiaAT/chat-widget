@@ -748,13 +748,15 @@ export class RasaChatbotWidget {
       return null;
     }
 
+    const utterType = this.getMessageUtterType(message);
+
     switch (message.type) {
       case MESSAGE_TYPES.SESSION_DIVIDER:
         return <rasa-session-divider sessionStartDate={message.startDate} sessionStartedText={this.sessionStartedText} key={key}></rasa-session-divider>;
       case MESSAGE_TYPES.TEXT:
         return (
           <chat-message sender={message.sender} key={key} timestamp={message.timestamp}>
-            <rasa-text-message sender={message.sender} value={message.text} isHistory={isHistory}></rasa-text-message>
+            <rasa-text-message sender={message.sender} utterType={utterType} value={message.text} isHistory={isHistory}></rasa-text-message>
           </chat-message>
         );
       case MESSAGE_TYPES.IMAGE:
@@ -791,11 +793,11 @@ export class RasaChatbotWidget {
           activeQuickReplyId = uuidv4();
           widgetState.getState().state.activeQuickReply = activeQuickReplyId;
         }
-        return <rasa-quick-reply quickReplyId={activeQuickReplyId} message={message} elementKey={key} key={key} isHistory={isHistory}></rasa-quick-reply>;
+        return <rasa-quick-reply quickReplyId={activeQuickReplyId} message={message} utterType={utterType} elementKey={key} key={key} isHistory={isHistory}></rasa-quick-reply>;
       case MESSAGE_TYPES.CAROUSEL:
         return (
           <chat-message sender={message.sender} timestamp={message.timestamp}>
-            <rasa-carousel elements={message.elements}></rasa-carousel>
+            <rasa-carousel elements={message.elements} utterType={utterType}></rasa-carousel>
           </chat-message>
         );
         case MESSAGE_TYPES.RATING:
@@ -813,6 +815,27 @@ export class RasaChatbotWidget {
           );
       
     }
+  }
+
+  private getMessageUtterType(message: Message): string | undefined {
+    if (!('metadata' in message)) {
+      return undefined;
+    }
+
+    const { metadata } = message;
+    if (!metadata || typeof metadata !== 'object') {
+      return undefined;
+    }
+
+    const metadataObject = metadata as { utter_type?: unknown; utterType?: unknown };
+    if (typeof metadataObject.utter_type === 'string') {
+      return metadataObject.utter_type;
+    }
+    if (typeof metadataObject.utterType === 'string') {
+      return metadataObject.utterType;
+    }
+
+    return undefined;
   }
 
   render() {

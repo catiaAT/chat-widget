@@ -7,12 +7,13 @@
 
 ## Properties
 
-| Property       | Attribute        | Description             | Type                | Default     |
-| -------------- | ---------------- | ----------------------- | ------------------- | ----------- |
-| `elementKey`   | `element-key`    | Element key             | `number`            | `undefined` |
-| `isHistory`    | `is-history`     | Is message form history | `boolean`           | `false`     |
-| `message`      | --               | Message value           | `QuickReplyMessage` | `undefined` |
-| `quickReplyId` | `quick-reply-id` | Element unique id       | `string`            | `undefined` |
+| Property       | Attribute        | Description                                            | Type                | Default     |
+| -------------- | ---------------- | ------------------------------------------------------ | ------------------- | ----------- |
+| `elementKey`   | `element-key`    | Element key                                            | `number`            | `undefined` |
+| `isHistory`    | `is-history`     | Is message form history                                | `boolean`           | `false`     |
+| `message`      | --               | Message value                                          | `QuickReplyMessage` | `undefined` |
+| `quickReplyId` | `quick-reply-id` | Element unique id                                      | `string`            | `undefined` |
+| `utterType`    | `utter-type`     | Optional visual variant derived from response metadata | `string`            | `undefined` |
 
 
 ## Events

@@ -7,6 +7,12 @@
   background-color: var(--message-robot-background-color);
   color: var(--message-robot-color);
 }
+
+:host(.text-message--headline) {
+  background-color: var(--message-headline-background-color);
+  color: var(--message-headline-color);
+}
+
 :host(.text-message--user) {
   background-color: var(--message-user-background-color);
   color: var(--message-user-color);

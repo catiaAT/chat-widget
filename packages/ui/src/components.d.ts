@@ -53,6 +53,10 @@ export namespace Components {
           * List of carousel elements
          */
         "elements": CarouselElement[];
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
     }
     interface RasaChatInput {
         /**
@@ -543,6 +547,10 @@ export namespace Components {
           * Element unique id
          */
         "quickReplyId": string;
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
     }
     interface RasaRating {
         /**
@@ -595,6 +603,10 @@ export namespace Components {
           * Who sent the message
          */
         "sender": SenderType;
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
         /**
           * Message value
          */
@@ -1045,6 +1057,10 @@ declare namespace LocalJSX {
           * User clicked on link
          */
         "onLinkClicked"?: (event: RasaCarouselCustomEvent<undefined>) => void;
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
     }
     interface RasaChatInput {
         /**
@@ -1590,6 +1606,10 @@ declare namespace LocalJSX {
           * Element unique id
          */
         "quickReplyId"?: string;
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
     }
     interface RasaRating {
         /**
@@ -1654,6 +1674,10 @@ declare namespace LocalJSX {
           * Who sent the message
          */
         "sender"?: SenderType;
+        /**
+          * Optional visual variant derived from response metadata
+         */
+        "utterType"?: string;
         /**
           * Message value
          */

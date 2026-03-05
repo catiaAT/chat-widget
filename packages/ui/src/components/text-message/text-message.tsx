@@ -21,6 +21,11 @@ export class RasaTextMessage {
   @Prop() sender: SenderType;
 
   /**
+   * Optional visual variant derived from response metadata
+   */
+  @Prop() utterType?: string;
+
+  /**
    * Is message form history
    */
   @Prop() isHistory = false;
@@ -34,6 +39,7 @@ export class RasaTextMessage {
     const classList = {
       'text-message--bot': this.sender === SENDER.BOT,
       'text-message--user': this.sender === SENDER.USER,
+      'text-message--headline': this.sender === SENDER.BOT && this.utterType === 'headline',
     };
     return (
       <Host class={classList}>

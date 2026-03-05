@@ -15,6 +15,10 @@ export class RasaCarousel {
    */
   @Prop() elements: CarouselElement[];
   /**
+   * Optional visual variant derived from response metadata
+   */
+  @Prop() utterType?: string;
+  /**
    * User clicked on link
    */
   @Event() linkClicked: EventEmitter<undefined>;
@@ -80,8 +84,13 @@ export class RasaCarousel {
   }
 
   render() {
+    const carouselClassList = {
+      carousel: true,
+      'carousel--headline': this.utterType === 'headline',
+    };
+
     return (
-      <div class="carousel">
+      <div class={carouselClassList}>
         {this.hasPrevious() && (
           <div class="carousel__icon carousel__icon--left">
             <rasa-icon-chevron-down size={24} class="carousel__previous" onClick={this.prevSlide}></rasa-icon-chevron-down>

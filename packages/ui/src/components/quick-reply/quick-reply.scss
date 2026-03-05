@@ -11,6 +11,11 @@
     padding: 8px 16px;
     background-color: var(--message-robot-background-color);
     color: var(--message-robot-color);
+
+    &--headline {
+      background-color: var(--message-headline-background-color);
+      color: var(--message-headline-color);
+    }
   }
 
   &__buttons {

@@ -14,6 +14,8 @@
   --message-robot-icon-color: var(--color-secondary);
   --message-robot-background-color: #F2F6FB;
   --message-robot-color: #1E2A36;
+  --message-headline-background-color: #FFF3BF;
+  --message-headline-color: #1E2A36;
   --message-user-background-color: var(--color-primary);
   --message-user-color: var(--color-secondary);
   --message-button-color: #FFFFFF;
@@ -25,6 +27,13 @@
   --accordion-background-color: var(--color-secondary-10);
   --session-divider-color: var(--color-secondary-10);
   --session-divider-text-color: var(--color-secondary-40);
+  --disclaimer-overlay-background-color: rgba(0, 0, 0, 0.5);
+  --disclaimer-background-color: var(--messenger-background-color);
+  --disclaimer-text-color: var(--color-secondary-opposite);
+  --disclaimer-title-color: var(--color-primary);
+  --disclaimer-link-color: var(--color-primary);
+  --disclaimer-button-background-color: var(--header-background-color);
+  --disclaimer-button-color: var(--header-color);
   --error-toast-background-color: var(--color-danger);
   --error-toast-color: var(--color-secondary);
   --timestamp-color: var(--color-secondary-40);

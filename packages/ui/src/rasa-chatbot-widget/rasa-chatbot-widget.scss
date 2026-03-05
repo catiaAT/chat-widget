@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--disclaimer-overlay-background-color, rgba(0, 0, 0, 0.5));
   z-index: 10001;
   padding: 16px;
 }
@@ -136,8 +136,8 @@
   max-width: 500px;
   max-height: 100%;
   overflow-y: auto;
-  background: var(--messenger-background-color);
-  color: var(--color-text-light);
+  background: var(--disclaimer-background-color, var(--messenger-background-color));
+  color: var(--disclaimer-text-color, var(--color-secondary-opposite));
   border-radius: 8px;
   padding: 16px;
   text-align: justify;
@@ -145,7 +145,7 @@
 
 .rasa-chatbot-widget__disclaimer-content h2 {
   margin: 0 0 12px;
-  color: var(--color-primary);
+  color: var(--disclaimer-title-color, var(--color-primary));
   text-align: center;
 }
 
@@ -155,7 +155,7 @@
 }
 
 .rasa-chatbot-widget__disclaimer-content a {
-  color: var(--color-primary);
+  color: var(--disclaimer-link-color, var(--color-primary));
   text-decoration: none;
   font-weight: 500;
 }
@@ -167,6 +167,6 @@
   border-radius: 8px;
   padding: 11px 16px;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #2c3e50);
-  color: var(--header-color);
+  background: var(--disclaimer-button-background-color, var(--header-background-color));
+  color: var(--disclaimer-button-color, var(--header-color));
 }

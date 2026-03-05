@@ -85,6 +85,7 @@ export class Rasa extends EventEmitter {
       | 'metadata'
       | 'custom.metadata'
       | 'custom.userInput'
+      | 'custom'
       | 'customData'
       | 'userInput'
       | undefined;
@@ -99,6 +100,9 @@ export class Rasa extends EventEmitter {
     } else if (customData?.userInput !== undefined) {
       metadataSource = 'custom.userInput';
       extractedMetadata = { userInput: customData.userInput };
+    } else if (customData !== undefined) {
+      metadataSource = 'custom';
+      extractedMetadata = customData;
     } else if (rootCustomData !== undefined) {
       metadataSource = 'customData';
       extractedMetadata = rootCustomData;
@@ -129,9 +133,14 @@ export class Rasa extends EventEmitter {
       return;
     }
 
+    const messagePayload =
+      extractedMetadata !== undefined && hasRenderableBotContent && responseData.metadata === undefined
+        ? { ...(data as object), metadata: extractedMetadata }
+        : data;
+
     try {
-      const parsedMessage = messageParser({ ...(data as object), timestamp }, SENDER.BOT);
-      this.storageService.setMessage({ sender: SENDER.BOT, ...(data as object), timestamp }, this.sessionId);
+      const parsedMessage = messageParser({ ...(messagePayload as object), timestamp }, SENDER.BOT);
+      this.storageService.setMessage({ sender: SENDER.BOT, ...(messagePayload as object), timestamp }, this.sessionId);
       this.trigger('message', parsedMessage);
     } catch {
       console.warn('Skipping unsupported bot message format', data);

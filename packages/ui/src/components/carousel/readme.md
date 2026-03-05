@@ -7,9 +7,10 @@
 
 ## Properties
 
-| Property   | Attribute | Description               | Type                | Default     |
-| ---------- | --------- | ------------------------- | ------------------- | ----------- |
-| `elements` | --        | List of carousel elements | `CarouselElement[]` | `undefined` |
+| Property    | Attribute    | Description                                            | Type                | Default     |
+| ----------- | ------------ | ------------------------------------------------------ | ------------------- | ----------- |
+| `elements`  | --           | List of carousel elements                              | `CarouselElement[]` | `undefined` |
+| `utterType` | `utter-type` | Optional visual variant derived from response metadata | `string`            | `undefined` |
 
 
 ## Events
