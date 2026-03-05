@@ -1,0 +1,32 @@
+:root {
+  --color-primary: #102d70;
+  --color-secondary: #4a90e2;
+  --color-text: #2c3e50;
+  --color-text-light: #5a6c7d;
+  --color-border: #e8eef2;
+  --color-background: #f8fafc;
+}
+
+rasa-chatbot-widget {
+  --widget-font-family: Verdana, sans-serif;
+  --color-primary: #102d70;
+  --color-secondary: #fbfbfb;
+  --header-background-color: #102d70;
+  --header-color: #ffffff;
+  --messenger-background-color: #f8fafc;
+  --launcher-background-color: #ffffff;
+  --launcher-color: #102d70;
+  --message-robot-background-color: #eef4ff;
+  --message-robot-color: #1f2f46;
+  --message-headline-background-color: #fff0b8;
+  --message-headline-color: #2c3e50;
+  --message-user-background-color: #102d70;
+  --message-user-color: #ffffff;
+  --disclaimer-background-color: #ffffff;
+  --disclaimer-text-color: #2c3e50;
+  --disclaimer-title-color: #102d70;
+  --disclaimer-link-color: #102d70;
+  --disclaimer-overlay-background-color: rgba(16, 45, 112, 0.35);
+  --disclaimer-button-background-color: #102d70;
+  --disclaimer-button-color: #ffffff;
+}

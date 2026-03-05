@@ -17,6 +17,7 @@ export const config: Config = {
       copy: [
         { src: 'assets/fonts', dest: 'assets/fonts' },
         { src: 'assets/images', dest: 'assets/images' },
+        { src: 'styles/widget-theme.css', dest: 'widget-theme.css' },
       ],
     },
     {
@@ -32,6 +33,7 @@ export const config: Config = {
       copy: [
         { src: 'assets/fonts', dest: 'build/assets/fonts' },
         { src: 'assets/images', dest: 'build/assets/images' },
+        { src: 'styles/widget-theme.css', dest: 'build/widget-theme.css' },
       ],
     },
     reactOutputTarget({

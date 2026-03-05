@@ -23,6 +23,7 @@ export class RasaChatbotWidget {
   private messageDelayQueue: Promise<void> = Promise.resolve();
   private disconnectTimeout: NodeJS.Timeout | null = null;
   private sentMessage = false;
+  private disclaimerInitialPayloadSent = false;
 
   @Element() el: HTMLRasaChatbotWidgetElement;
   @State() isOpen: boolean = false;
@@ -295,6 +296,7 @@ export class RasaChatbotWidget {
     // Set the font family CSS custom property
     this.el.style.setProperty('--widget-font-family', this.fontFamily);
     this.disclaimerAccepted = this.getStoredDisclaimerAccepted();
+    this.disclaimerInitialPayloadSent = this.getStoredDisclaimerInitialPayloadSent();
     this.updateDisclaimerVisibility();
     
     const protocol = this.restEnabled ? 'http' : 'ws';
@@ -361,6 +363,28 @@ export class RasaChatbotWidget {
     this.disclaimerAccepted = true;
     try {
       sessionStorage.setItem(this.disclaimerStorageKey, 'true');
+    } catch {
+      // ignore sessionStorage errors
+    }
+  }
+
+  private getDisclaimerPayloadSentStorageKey(): string {
+    return `${this.disclaimerStorageKey}_initial_payload_sent`;
+  }
+
+  private getStoredDisclaimerInitialPayloadSent(): boolean {
+    if (!this.disclaimerEnabled) return false;
+    try {
+      return sessionStorage.getItem(this.getDisclaimerPayloadSentStorageKey()) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  private setDisclaimerInitialPayloadSent(): void {
+    this.disclaimerInitialPayloadSent = true;
+    try {
+      sessionStorage.setItem(this.getDisclaimerPayloadSentStorageKey(), 'true');
     } catch {
       // ignore sessionStorage errors
     }
@@ -497,19 +521,16 @@ export class RasaChatbotWidget {
     this.isOpen ? this.connect() : this.disconnect();
     this.updateDisclaimerVisibility();
 
-    if (nextValue && this.disclaimerEnabled && this.disclaimerAccepted) {
-      this.sendDisclaimerInitialPayload();
-    }
-
     this.emitChatWidgetOpenCloseEvents();
   };
 
   private sendDisclaimerInitialPayload(): void {
     const payload = this.disclaimerInitialPayload?.trim();
-    if (!payload) return;
+    if (!payload || this.disclaimerInitialPayloadSent) return;
 
     const timestamp = new Date();
     this.client.sendMessage({ text: payload, timestamp });
+    this.setDisclaimerInitialPayloadSent();
     this.chatWidgetSentMessage.emit(payload);
     this.messages = [...this.messages, { type: 'text', text: payload, sender: 'user', timestamp }];
     this.scrollToBottom();
