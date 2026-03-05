@@ -5,13 +5,14 @@ import { configStore } from '../store/config-store';
 type MessengerProps = {
   isOpen: boolean;
   isFullScreen: boolean;
+  onClose?: () => void;
   toggleFullScreenMode: () => void;
   hasFeedback?: boolean;
   restartEnabled?: boolean;
   onRestart?: (e: MouseEvent) => void;
 };
 
-export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullScreen, toggleFullScreenMode, hasFeedback, restartEnabled, onRestart }, children) => {
+export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullScreen, onClose, toggleFullScreenMode, hasFeedback, restartEnabled, onRestart }, children) => {
   const Icon = isFullScreen ? 'rasa-icon-arrows-contract' : 'rasa-icon-arrows-expand';
 
   return (
@@ -35,6 +36,7 @@ export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullS
           </div>
         )}
         {configStore().toggleFullScreen && <Icon onClick={toggleFullScreenMode} class="messenger__header__icon" size={20}></Icon>}
+        {isOpen && <rasa-icon-close-chat onClick={onClose} class="messenger__header__icon" size={18}></rasa-icon-close-chat>}
       </div>
       <div class="messenger__content-wrapper">
         <div class="messenger__content">{children}</div>

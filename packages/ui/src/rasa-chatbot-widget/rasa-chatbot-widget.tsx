@@ -733,6 +733,7 @@ export class RasaChatbotWidget {
             <slot />
             <Messenger 
               isOpen={this.isOpen} 
+              onClose={this.toggleOpenState}
               toggleFullScreenMode={this.toggleFullscreenMode} 
               isFullScreen={this.isFullScreen}
               hasFeedback={this.enableFeedback && this.isOpen}
@@ -777,7 +778,7 @@ export class RasaChatbotWidget {
                 </svg>
               </div>
             )}
-            {!this.embedded && (
+            {!this.embedded && !this.isOpen && (
               <div role="button" onClick={this.toggleOpenState} class="rasa-chatbot-widget__launcher" aria-label={this.getAltText()} title={this.getAltText()}>
                 {configStore().widgetIcon ? (
                   <img src={configStore().widgetIcon} class="rasa-chatbot-widget__launcher-image"></img>
