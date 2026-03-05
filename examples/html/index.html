@@ -6,11 +6,11 @@
     <title>Rasa Chat Widget - Test</title>
     <script
       type="module"
-      src="./rasa-chatwidget/rasa-chatwidget.esm.js?v=118"
+      src="./rasa-chatwidget/rasa-chatwidget.esm.js?v=119"
     ></script>
     <link
       rel="stylesheet"
-      href="./rasa-chatwidget/rasa-chatwidget.css?v=118"
+      href="./rasa-chatwidget/rasa-chatwidget.css?v=119"
     />
 
     <style>
@@ -24,88 +24,6 @@
         --color-background: #f8fafc;
       }
 
-      /* Disclaimer overlay styling */
-      #disclaimer-overlay {
-        position: fixed;
-        bottom: 10px;
-        right: 20px;
-        width: 320px;
-        height: 93vh;
-        max-height: 688px;
-        background: linear-gradient(135deg, #ffffff 0%, #f5f9fc 100%);
-        backdrop-filter: blur(8px);
-        z-index: 999999999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 28px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 61, 107, 0.1);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      #disclaimer-overlay.visible {
-        opacity: 1;
-        pointer-events: all;
-      }
-
-      .disclaimer-content {
-        max-width: 280px;
-        text-align: justify;
-      }
-
-      .disclaimer-content h2 {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--color-primary);
-        margin: 0 0 12px;
-        letter-spacing: -0.3px;
-        text-align: center;
-      }
-
-      .disclaimer-content p {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 11px;
-        line-height: 1.7;
-        color: var(--color-text-light);
-        margin: 0 0 20px;
-        font-weight: 400;
-      }
-
-      .disclaimer-content p:last-of-type {
-        margin-bottom: 28px;
-      }
-
-      .disclaimer-accept-btn {
-        background: linear-gradient(135deg, var(--color-primary) 0%, #2c3e50);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 11px 28px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 61, 107, 0.2);
-        display: block;
-        margin: 0 auto;
-      }
-
-      .disclaimer-accept-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 61, 107, 0.3);
-      }
-
-      .disclaimer-accept-btn:active {
-        transform: translateY(0);
-      }
     </style>
   </head>
   <body>
@@ -128,20 +46,16 @@
       font-family="Verdana, sans-serif"
       auto-open="false"
       input-message-placeholder=""
+      disclaimer-enabled="true"
+      disclaimer-storage-key="disclaimer_accepted"
+      disclaimer-title="Bem-vindo"
+      disclaimer-text="As informações que enviar são utilizadas apenas para lhe prestar esclarecimentos, não sendo utilizadas para efeitos da sua situação tributária específica.&#10;&#10;Não abrangido pelo artigo 68.º da Lei Geral Tributária. Não necessita de enviar dados pessoais que permitam a sua identificação por parte da AT. Para processamento e arquivo dos dados deste sistema, a AT poderá recorrer a serviços de computação na &quot;cloud&quot;.&#10;&#10;A utilização deste serviço requer um &quot;cookie&quot; mensal para agregar as interações do mesmo utilizador nesse período.&#10;&#10;Para melhoria do serviço prestado, são arquivadas até 180 dias as conversas mantidas, bem como o seu IP e as versões do sistema operativo e navegador de internet."
+      disclaimer-link-prefix-text="Consulte a"
+      disclaimer-link-text="Política de Privacidade e Segurança da AT"
+      disclaimer-link-url="https://info.portaldasfinancas.gov.pt/pt/quem_somos/privacidade/Pages/privacidade.aspx"
+      disclaimer-accept-button-text="Aceitar e continuar"
+      disclaimer-initial-payload="/o_que_sabes"
     >
-      <!-- Disclaimer injected into widget slot -->
-      <div id="disclaimer-overlay">
-        <div class="disclaimer-content">
-          <h2>Bem-vindo</h2>
-          <p>As informações que enviar são utilizadas apenas para lhe prestar esclarecimentos, não sendo utilizadas para efeitos da sua situação tributária específica.</p>
-          <p>Não abrangido pelo artigo 68.º da Lei Geral Tributária. Não necessita de enviar dados pessoais que permitam a sua identificação por parte da AT. Para processamento e arquivo dos dados deste sistema, a AT poderá recorrer a serviços de computação na "cloud".</p>
-          <p>A utilização deste serviço requer um "cookie" mensal para agregar as interações do mesmo utilizador nesse período.</p>
-          <p>Para melhoria do serviço prestado, são arquivadas até 180 dias as conversas mantidas, bem como o seu IP e as versões do sistema operativo e navegador de internet.</p>
-          <p>Consulte a <a href="https://info.portaldasfinancas.gov.pt/pt/quem_somos/privacidade/Pages/privacidade.aspx" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">Política de Privacidade e Segurança da AT</a>.</p>
-          <button id="accept-btn" class="disclaimer-accept-btn">Aceitar e continuar</button>
-        </div>
-      </div>
-
       <style>
         :root {
           --color-primary: #102d70;     /* Azul escuro institucional */
@@ -155,9 +69,6 @@
     <script>
       (function() {
         const widget = document.getElementById('chat-widget');
-        const overlay = document.getElementById('disclaimer-overlay');
-        const acceptBtn = document.getElementById('accept-btn');
-        const STORAGE_KEY = 'disclaimer_accepted';
 
         function attachSocketDebugLogs() {
           const socket = widget?.client?.socket;
@@ -174,44 +85,9 @@
           socket.io?.on('reconnect', (attempt) => console.log('[socket] reconnected on attempt:', attempt));
         }
 
-        function triggerInitialIntent() {
-          const initialIntent = '/o_que_sabes';
-          widget.dispatchEvent(new CustomEvent('sendMessageHandler', {
-            detail: initialIntent,
-            bubbles: true,
-            composed: true,
-          }));
-          console.log('[widget] initial intent sent:', initialIntent);
-        }
-
-        // Clear disclaimer acceptance on page load to start fresh
-        // (or comment this line if you want it to persist across page reloads)
-        sessionStorage.removeItem(STORAGE_KEY);
-
-        // When widget opens, show disclaimer only if not yet accepted
+        // When widget opens
         widget.addEventListener('chatWidgetOpened', function() {
           attachSocketDebugLogs();
-          // Check if disclaimer was already accepted this session
-          const isAccepted = sessionStorage.getItem(STORAGE_KEY) === 'true';
-          
-          console.log('Widget opened. Disclaimer accepted:', isAccepted);
-          
-          if (!isAccepted) {
-            console.log('Showing disclaimer overlay');
-            setTimeout(() => {
-              overlay.classList.add('visible');
-            }, 100);
-          } else {
-            console.log('Hiding disclaimer overlay and triggering payload');
-            overlay.classList.remove('visible');
-            // Already accepted, send initial intent immediately
-            triggerInitialIntent();
-          }
-        });
-
-        // When widget closes, hide disclaimer
-        widget.addEventListener('chatWidgetClosed', function() {
-          overlay.classList.remove('visible');
         });
 
         widget.addEventListener('chatWidgetSentMessage', function(event) {
@@ -220,18 +96,6 @@
 
         widget.addEventListener('chatWidgetReceivedMessage', function(event) {
           console.log('[widget] received:', event.detail);
-        });
-
-        // When user accepts, hide disclaimer and trigger payload
-        acceptBtn.addEventListener('click', function() {
-          overlay.classList.remove('visible');
-          // Save acceptance in session storage
-          sessionStorage.setItem(STORAGE_KEY, 'true');
-          console.log('Disclaimer accepted, saved to sessionStorage');
-          // Send initial intent to start conversation
-          setTimeout(() => {
-            triggerInitialIntent();
-          }, 300);
         });
 
         setTimeout(attachSocketDebugLogs, 800);

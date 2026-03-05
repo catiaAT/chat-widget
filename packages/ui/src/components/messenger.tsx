@@ -6,14 +6,26 @@ type MessengerProps = {
   isOpen: boolean;
   isFullScreen: boolean;
   onClose?: () => void;
+  showDisclaimer?: boolean;
+  disclaimerTitle?: string;
+  disclaimerText?: string;
+  disclaimerLinkPrefixText?: string;
+  disclaimerLinkText?: string;
+  disclaimerLinkUrl?: string;
+  disclaimerAcceptButtonText?: string;
+  onAcceptDisclaimer?: () => void;
   toggleFullScreenMode: () => void;
   hasFeedback?: boolean;
   restartEnabled?: boolean;
   onRestart?: (e: MouseEvent) => void;
 };
 
-export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullScreen, onClose, toggleFullScreenMode, hasFeedback, restartEnabled, onRestart }, children) => {
+export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullScreen, onClose, showDisclaimer, disclaimerTitle, disclaimerText, disclaimerLinkPrefixText, disclaimerLinkText, disclaimerLinkUrl, disclaimerAcceptButtonText, onAcceptDisclaimer, toggleFullScreenMode, hasFeedback, restartEnabled, onRestart }, children) => {
   const Icon = isFullScreen ? 'rasa-icon-arrows-contract' : 'rasa-icon-arrows-expand';
+  const disclaimerParagraphs = (disclaimerText || '')
+    .split(/\n\s*\n/g)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean);
 
   return (
     <div class={{ 
@@ -41,6 +53,27 @@ export const Messenger: FunctionalComponent<MessengerProps> = ({ isOpen, isFullS
       <div class="messenger__content-wrapper">
         <div class="messenger__content">{children}</div>
       </div>
+      {showDisclaimer && (
+        <div class="rasa-chatbot-widget__disclaimer" role="dialog" aria-modal="true" aria-label={disclaimerTitle}>
+          <div class="rasa-chatbot-widget__disclaimer-content">
+            <h2>{disclaimerTitle}</h2>
+            {disclaimerParagraphs.map((paragraph, index) => (
+              <p key={`disclaimer-paragraph-${index}`}>{paragraph}</p>
+            ))}
+            {disclaimerLinkUrl && (
+              <p>
+                {disclaimerLinkPrefixText ? `${disclaimerLinkPrefixText} ` : ''}
+                <a href={disclaimerLinkUrl} target="_blank" rel="noopener noreferrer">
+                  {disclaimerLinkText}
+                </a>
+              </p>
+            )}
+            <button class="rasa-chatbot-widget__disclaimer-accept-btn" onClick={onAcceptDisclaimer}>
+              {disclaimerAcceptButtonText}
+            </button>
+          </div>
+        </div>
+      )}
       <error-toast></error-toast>
       <rasa-chat-input></rasa-chat-input>
     </div>

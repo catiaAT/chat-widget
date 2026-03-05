@@ -34,6 +34,8 @@ export class RasaChatbotWidget {
   @State() isConnected = false;
   @State() showFeedback = false;
   @State() feedbackSubmitted = false;
+  @State() disclaimerAccepted = false;
+  @State() showDisclaimer = false;
 
   /**
    * Emitted when the Chat Widget is opened by the user
@@ -200,6 +202,51 @@ export class RasaChatbotWidget {
    * */
   @Prop() fontFamily: string = 'Lato, sans-serif';
 
+  /**
+   * If set to True, shows a built-in disclaimer overlay before interacting with the chat.
+   */
+  @Prop() disclaimerEnabled: boolean = false;
+
+  /**
+   * Storage key used to persist disclaimer acceptance in sessionStorage.
+   */
+  @Prop() disclaimerStorageKey: string = 'rasa_widget_disclaimer_accepted';
+
+  /**
+   * Disclaimer title text.
+   */
+  @Prop() disclaimerTitle: string = 'Welcome';
+
+  /**
+   * Disclaimer body text.
+   */
+  @Prop() disclaimerText: string = 'Before using this chat, please review the privacy and usage information.';
+
+  /**
+   * Disclaimer link label.
+   */
+  @Prop() disclaimerLinkText: string = 'Privacy Policy';
+
+  /**
+   * Optional text shown before the disclaimer link.
+   */
+  @Prop() disclaimerLinkPrefixText: string = '';
+
+  /**
+   * Disclaimer link URL.
+   */
+  @Prop() disclaimerLinkUrl: string = '';
+
+  /**
+   * Disclaimer accept button text.
+   */
+  @Prop() disclaimerAcceptButtonText: string = 'Accept and continue';
+
+  /**
+   * Optional payload/message sent when disclaimer is accepted.
+   */
+  @Prop() disclaimerInitialPayload: string = '';
+
   componentWillLoad() {
     const {
       serverUrl,
@@ -241,6 +288,8 @@ export class RasaChatbotWidget {
     
     // Set the font family CSS custom property
     this.el.style.setProperty('--widget-font-family', this.fontFamily);
+    this.disclaimerAccepted = this.getStoredDisclaimerAccepted();
+    this.updateDisclaimerVisibility();
     
     const protocol = this.restEnabled ? 'http' : 'ws';
 
@@ -271,6 +320,28 @@ export class RasaChatbotWidget {
         receiveChatHistoryEvent(ev, this.client.overrideChatHistory, this.senderId);
       };
     }
+  }
+
+  private getStoredDisclaimerAccepted(): boolean {
+    if (!this.disclaimerEnabled) return true;
+    try {
+      return sessionStorage.getItem(this.disclaimerStorageKey) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  private setDisclaimerAccepted(): void {
+    this.disclaimerAccepted = true;
+    try {
+      sessionStorage.setItem(this.disclaimerStorageKey, 'true');
+    } catch {
+      // ignore sessionStorage errors
+    }
+  }
+
+  private updateDisclaimerVisibility(): void {
+    this.showDisclaimer = this.disclaimerEnabled && this.isOpen && !this.disclaimerAccepted;
   }
 
   private scrollToBottom(): void {
@@ -373,7 +444,33 @@ export class RasaChatbotWidget {
     clearTimeout(this.disconnectTimeout);
     this.disconnectTimeout = null;
     this.isOpen ? this.connect() : this.disconnect();
+    this.updateDisclaimerVisibility();
+
+    if (nextValue && this.disclaimerEnabled && this.disclaimerAccepted) {
+      this.sendDisclaimerInitialPayload();
+    }
+
     this.emitChatWidgetOpenCloseEvents();
+  };
+
+  private sendDisclaimerInitialPayload(): void {
+    const payload = this.disclaimerInitialPayload?.trim();
+    if (!payload) return;
+
+    const timestamp = new Date();
+    this.client.sendMessage({ text: payload, timestamp });
+    this.chatWidgetSentMessage.emit(payload);
+    this.messages = [...this.messages, { type: 'text', text: payload, sender: 'user', timestamp }];
+    this.scrollToBottom();
+    this.sentMessage = true;
+    this.feedbackSubmitted = false;
+    this.showFeedback = false;
+  }
+
+  private acceptDisclaimer = () => {
+    this.setDisclaimerAccepted();
+    this.updateDisclaimerVisibility();
+    this.sendDisclaimerInitialPayload();
   };
 
   connectedCallback() {
@@ -734,6 +831,14 @@ export class RasaChatbotWidget {
             <Messenger 
               isOpen={this.isOpen} 
               onClose={this.toggleOpenState}
+              showDisclaimer={this.showDisclaimer}
+              disclaimerTitle={this.disclaimerTitle}
+              disclaimerText={this.disclaimerText}
+              disclaimerLinkPrefixText={this.disclaimerLinkPrefixText}
+              disclaimerLinkText={this.disclaimerLinkText}
+              disclaimerLinkUrl={this.disclaimerLinkUrl}
+              disclaimerAcceptButtonText={this.disclaimerAcceptButtonText}
+              onAcceptDisclaimer={this.acceptDisclaimer}
               toggleFullScreenMode={this.toggleFullscreenMode} 
               isFullScreen={this.isFullScreen}
               hasFeedback={this.enableFeedback && this.isOpen}

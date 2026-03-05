@@ -74,6 +74,42 @@ export namespace Components {
          */
         "botIcon": string;
         /**
+          * Disclaimer accept button text.
+         */
+        "disclaimerAcceptButtonText": string;
+        /**
+          * If set to True, shows a built-in disclaimer overlay before interacting with the chat.
+         */
+        "disclaimerEnabled": boolean;
+        /**
+          * Optional payload/message sent when disclaimer is accepted.
+         */
+        "disclaimerInitialPayload": string;
+        /**
+          * Optional text shown before the disclaimer link.
+         */
+        "disclaimerLinkPrefixText": string;
+        /**
+          * Disclaimer link label.
+         */
+        "disclaimerLinkText": string;
+        /**
+          * Disclaimer link URL.
+         */
+        "disclaimerLinkUrl": string;
+        /**
+          * Storage key used to persist disclaimer acceptance in sessionStorage.
+         */
+        "disclaimerStorageKey": string;
+        /**
+          * Disclaimer body text.
+         */
+        "disclaimerText": string;
+        /**
+          * Disclaimer title text.
+         */
+        "disclaimerTitle": string;
+        /**
           * Indicates if a message timestamp should be displayed
          */
         "displayTimestamp": boolean;
@@ -1029,6 +1065,42 @@ declare namespace LocalJSX {
           * Static icon for the chatbot
          */
         "botIcon"?: string;
+        /**
+          * Disclaimer accept button text.
+         */
+        "disclaimerAcceptButtonText"?: string;
+        /**
+          * If set to True, shows a built-in disclaimer overlay before interacting with the chat.
+         */
+        "disclaimerEnabled"?: boolean;
+        /**
+          * Optional payload/message sent when disclaimer is accepted.
+         */
+        "disclaimerInitialPayload"?: string;
+        /**
+          * Optional text shown before the disclaimer link.
+         */
+        "disclaimerLinkPrefixText"?: string;
+        /**
+          * Disclaimer link label.
+         */
+        "disclaimerLinkText"?: string;
+        /**
+          * Disclaimer link URL.
+         */
+        "disclaimerLinkUrl"?: string;
+        /**
+          * Storage key used to persist disclaimer acceptance in sessionStorage.
+         */
+        "disclaimerStorageKey"?: string;
+        /**
+          * Disclaimer body text.
+         */
+        "disclaimerText"?: string;
+        /**
+          * Disclaimer title text.
+         */
+        "disclaimerTitle"?: string;
         /**
           * Indicates if a message timestamp should be displayed
          */
