@@ -154,6 +154,10 @@ export namespace Components {
          */
         "messageDelay": number;
         /**
+          * Optional JSON string sent as metadata/customData with each user message. Example: '{"channel":"web","tenant":"pt"}'
+         */
+        "messageMetadata": string;
+        /**
           * Format of the message timestamp
          */
         "messageTimestamp": string;
@@ -1145,6 +1149,10 @@ declare namespace LocalJSX {
           * Indicates time between message is received and printed.
          */
         "messageDelay"?: number;
+        /**
+          * Optional JSON string sent as metadata/customData with each user message. Example: '{"channel":"web","tenant":"pt"}'
+         */
+        "messageMetadata"?: string;
         /**
           * Format of the message timestamp
          */

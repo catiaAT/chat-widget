@@ -21,6 +21,7 @@ export type CarouselElement = {
 interface BaseMessage {
   sender: SenderType;
   timestamp?: Date;
+  metadata?: unknown;
 }
 
 export interface TextMessage extends BaseMessage {

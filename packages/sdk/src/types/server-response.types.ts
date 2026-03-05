@@ -2,6 +2,7 @@ import { RESPONSE_MESSAGE_TYPES } from '../constants';
 
 interface BaseMessageResponse {
   timestamp?: Date;
+  metadata?: unknown;
 }
 export interface TextResponse extends BaseMessageResponse {
   text: string;

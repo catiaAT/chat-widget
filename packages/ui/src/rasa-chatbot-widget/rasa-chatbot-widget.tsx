@@ -128,6 +128,12 @@ export class RasaChatbotWidget {
   @Prop() senderId: string = '';
 
   /**
+   * Optional JSON string sent as metadata/customData with each user message.
+   * Example: '{"channel":"web","tenant":"pt"}'
+   */
+  @Prop() messageMetadata: string = '';
+
+  /**
    * Indicates time between message is received and printed.
    * */
   @Prop() messageDelay: number = 600;
@@ -293,7 +299,26 @@ export class RasaChatbotWidget {
     
     const protocol = this.restEnabled ? 'http' : 'ws';
 
-    this.client = new Rasa({ url: this.serverUrl, protocol, initialPayload, authenticationToken, senderId });
+    let parsedMessageMetadata: Record<string, unknown> | undefined;
+    if (this.messageMetadata?.trim()) {
+      try {
+        const parsed = JSON.parse(this.messageMetadata);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          parsedMessageMetadata = parsed as Record<string, unknown>;
+        }
+      } catch {
+        console.warn("Invalid 'messageMetadata' JSON. Ignoring metadata payload.");
+      }
+    }
+
+    this.client = new Rasa({
+      url: this.serverUrl,
+      protocol,
+      initialPayload,
+      authenticationToken,
+      senderId,
+      messageMetadata: parsedMessageMetadata,
+    });
 
     this.client.on('connect', () => {
       this.isConnected = true;
@@ -301,6 +326,7 @@ export class RasaChatbotWidget {
       widgetState.getState().state.connected = true;
     });
     this.client.on('message', this.onNewMessage);
+    this.client.on('responseMetadata', this.onResponseMetadata);
     this.client.on('loadHistory', this.loadHistory);
     this.client.on('sessionConfirm', this.sessionConfirm);
     this.client.on('disconnect', () => {
@@ -360,6 +386,17 @@ export class RasaChatbotWidget {
     // If senderID is configured (continuous session), tab is not in focus and user message was not sent from this tab do not render new server message
     if (this.senderId && !document.hasFocus() && !this.sentMessage) return;
 
+    const metadata = 'metadata' in data ? data.metadata : undefined;
+    if (metadata && typeof metadata === 'object' && 'userInput' in metadata) {
+      const userInput = (metadata as { userInput?: unknown }).userInput;
+      if (userInput === 'disable') {
+        widgetState.getState().state.userInputDisabled = true;
+      }
+      if (userInput === 'enable') {
+        widgetState.getState().state.userInputDisabled = false;
+      }
+    }
+
     // Don't skip "no_feedback" messages - we need to add them to messages array to check for them
     // They will be filtered out in renderMessage so they don't display
 
@@ -410,6 +447,20 @@ export class RasaChatbotWidget {
         }, delay);
       });
     });
+  };
+
+  private onResponseMetadata = (metadata: unknown) => {
+    if (!metadata || typeof metadata !== 'object') {
+      return;
+    }
+
+    const userInput = (metadata as { userInput?: unknown }).userInput;
+    if (userInput === 'disable') {
+      widgetState.getState().state.userInputDisabled = true;
+    }
+    if (userInput === 'enable') {
+      widgetState.getState().state.userInputDisabled = false;
+    }
   };
 
   private loadHistory = (data: Message[]): void => {

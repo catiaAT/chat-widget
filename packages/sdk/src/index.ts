@@ -13,6 +13,7 @@ interface Options {
   initialPayload?: string;
   authenticationToken?: string;
   senderId?: string;
+  messageMetadata?: Record<string, unknown>;
 }
 
 export class Rasa extends EventEmitter {
@@ -23,12 +24,14 @@ export class Rasa extends EventEmitter {
   private isInitialConnection: boolean;
   private isSessionConfirmed: boolean;
   private senderId?: string;
+  private messageMetadata?: Record<string, unknown>;
 
-  public constructor({ url, protocol = 'ws', initialPayload, authenticationToken, senderId }: Options) {
+  public constructor({ url, protocol = 'ws', initialPayload, authenticationToken, senderId, messageMetadata }: Options) {
     super();
     this.senderId = senderId;
     this._sessionId = senderId ? senderId : uuidv4();
     this.initialPayload = initialPayload;
+    this.messageMetadata = messageMetadata;
     this.storageService = new StorageService();
     this.isInitialConnection = true;
     this.isSessionConfirmed = false;
@@ -60,6 +63,72 @@ export class Rasa extends EventEmitter {
   //#region Connection Event Handlers
   private onBotResponse = (data: unknown): void => {
     const timestamp = new Date();
+
+    const responseData = data as {
+      metadata?: unknown;
+      custom?: unknown;
+      customData?: unknown;
+      userInput?: unknown;
+    };
+
+    const customData =
+      responseData && typeof responseData.custom === 'object' && responseData.custom !== null
+        ? (responseData.custom as { metadata?: unknown; userInput?: unknown })
+        : undefined;
+
+    const rootCustomData =
+      responseData && typeof responseData.customData === 'object' && responseData.customData !== null
+        ? (responseData.customData as { userInput?: unknown })
+        : undefined;
+
+    let metadataSource:
+      | 'metadata'
+      | 'custom.metadata'
+      | 'custom.userInput'
+      | 'customData'
+      | 'userInput'
+      | undefined;
+    let extractedMetadata: unknown;
+
+    if (responseData?.metadata !== undefined) {
+      metadataSource = 'metadata';
+      extractedMetadata = responseData.metadata;
+    } else if (customData?.metadata !== undefined) {
+      metadataSource = 'custom.metadata';
+      extractedMetadata = customData.metadata;
+    } else if (customData?.userInput !== undefined) {
+      metadataSource = 'custom.userInput';
+      extractedMetadata = { userInput: customData.userInput };
+    } else if (rootCustomData !== undefined) {
+      metadataSource = 'customData';
+      extractedMetadata = rootCustomData;
+    } else if (responseData?.userInput !== undefined) {
+      metadataSource = 'userInput';
+      extractedMetadata = { userInput: responseData.userInput };
+    }
+
+    if (extractedMetadata !== undefined) {
+      console.log('[Rasa Chat Widget] response metadata source:', metadataSource);
+      console.log('[Rasa Chat Widget] response metadata value:', extractedMetadata);
+      this.trigger('responseMetadata', extractedMetadata);
+    }
+
+    const hasRenderableBotContent =
+      responseData &&
+      typeof responseData === 'object' &&
+      (
+        'text' in responseData ||
+        'attachment' in responseData ||
+        'quick_replies' in responseData ||
+        'buttons' in responseData ||
+        'elements' in responseData ||
+        'image' in responseData
+      );
+
+    if (extractedMetadata !== undefined && !hasRenderableBotContent) {
+      return;
+    }
+
     try {
       const parsedMessage = messageParser({ ...(data as object), timestamp }, SENDER.BOT);
       this.storageService.setMessage({ sender: SENDER.BOT, ...(data as object), timestamp }, this.sessionId);
@@ -84,7 +153,11 @@ export class Rasa extends EventEmitter {
       });
       // @TODO ask Tom about this behavior
       if (this.initialPayload) {
-        this.connection.sendMessage(this.initialPayload, this.sessionId);
+        if (this.messageMetadata) {
+          this.connection.sendMessage(this.initialPayload, this.sessionId, this.messageMetadata);
+        } else {
+          this.connection.sendMessage(this.initialPayload, this.sessionId);
+        }
       }
     }
   };
@@ -127,7 +200,11 @@ export class Rasa extends EventEmitter {
     isQuickReply = false,
     messageKey?: number,
   ): void {
-    this.connection.sendMessage(reply ?? text, this.sessionId);
+    if (this.messageMetadata) {
+      this.connection.sendMessage(reply ?? text, this.sessionId, this.messageMetadata);
+    } else {
+      this.connection.sendMessage(reply ?? text, this.sessionId);
+    }
     this.storageService.setMessage({ sender: SENDER.USER, text, timestamp }, this.sessionId);
     if (isQuickReply && messageKey && reply) {
       this.storageService.setQuickReplyValue(reply, messageKey, this.sessionId);

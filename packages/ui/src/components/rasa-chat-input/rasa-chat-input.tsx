@@ -50,6 +50,8 @@ export class RasaChatInput {
   };
 
   render() {
+    const isInputDisabled = !widgetState.isConnected() || widgetState.isUserInputDisabled();
+
     return (
       <div class="rasa-chat-input">
         <input
@@ -61,8 +63,9 @@ export class RasaChatInput {
           maxLength={500}
           onKeyUp={event => this.handleKeyUp(event)}
           enterkeyhint="done"
+          disabled={isInputDisabled}
         />
-        <button class="rasa-chat-input__button" onClick={this.sendMessageClick} aria-label="Send message">
+        <button class="rasa-chat-input__button" onClick={this.sendMessageClick} aria-label="Send message" disabled={isInputDisabled}>
           <rasa-icon-paper-plane class="rasa-chat-input__icon"></rasa-icon-paper-plane>
         </button>
       </div>

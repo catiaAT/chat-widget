@@ -14,7 +14,7 @@ export interface ConnectionParams {
 export interface ConnectionStrategy extends ConnectionParams {
   socket?: Socket;
   connect(): void;
-  sendMessage(message: string, sessionId: string, cb: (data: MessageResponse[]) => void);
+  sendMessage(message: string, sessionId: string, metadata?: Record<string, unknown>): void;
   sessionRequest(sessionId: string): void;
   reconnection(value: boolean): void;
   disconnect(): void;

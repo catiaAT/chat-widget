@@ -28,6 +28,7 @@ export const MessageParsers = {
     type: MESSAGE_TYPES.TEXT,
     text: message.text,
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   image: (message: ImageResponse, sender: SenderType): ImageMessage => ({
     sender,
@@ -36,11 +37,13 @@ export const MessageParsers = {
     alt: message.attachment.payload.alt || '',
     text: message.text,
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   accordion: (message: AccordionResponse, sender: SenderType): AccordionMessage => ({
     sender,
     ...message,
     type: MESSAGE_TYPES.ACCORDION,
+    metadata: message.metadata,
   }),
   carousel: (message: CarouselResponse, sender: SenderType): CarouselMessage => ({
     sender,
@@ -51,6 +54,7 @@ export const MessageParsers = {
       imageUrl: image_url,
     })),
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   quickReply: (message: QuickReplyResponse, sender: SenderType): QuickReplyMessage => ({
     sender,
@@ -62,6 +66,7 @@ export const MessageParsers = {
       isSelected,
     })),
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   fileDownload: (
     message: FileDownloadResponse,
@@ -73,6 +78,7 @@ export const MessageParsers = {
     fileUrl: message.file_url,
     text: message.text,
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   video: (
     message: VideoResponse,
@@ -82,6 +88,7 @@ export const MessageParsers = {
     type: MESSAGE_TYPES.VIDEO,
     src: message.video_url,
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
   rating: (message: RatingResponse, sender: SenderType): RatingMessage => ({
     sender,
@@ -93,6 +100,7 @@ export const MessageParsers = {
     })),
     message: message.message,
     timestamp: message.timestamp,
+    metadata: message.metadata,
   }),
 
 };

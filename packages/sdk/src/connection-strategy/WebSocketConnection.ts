@@ -41,8 +41,17 @@ export class WebSocketConnection implements ConnectionStrategy {
     this.socket.connect();
   }
 
-  public sendMessage(message: string, sessionId: string): void {
-    this.socket.emit('user_uttered', { message, session_id: sessionId });
+  public sendMessage(message: string, sessionId: string, metadata?: Record<string, unknown>): void {
+    const payload: { message: string; session_id: string; customData?: Record<string, unknown> } = {
+      message,
+      session_id: sessionId,
+    };
+
+    if (metadata) {
+      payload.customData = metadata;
+    }
+
+    this.socket.emit('user_uttered', payload);
   }
 
   public disconnect(): void {

@@ -2,6 +2,7 @@ interface EventMap {
   connect: () => void;
   disconnect: () => void;
   message: (data: unknown) => void;
+  responseMetadata: (data: unknown) => void;
   loadHistory: (data: unknown) => void;
   sessionConfirm: () => void;
 }

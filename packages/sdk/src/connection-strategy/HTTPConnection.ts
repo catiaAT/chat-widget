@@ -47,14 +47,14 @@ export class HTTPConnection implements ConnectionStrategy {
       }
 
       if (isHttpTextResponse(message)) {
-        return { text: message.text };
+        return { text: message.text, metadata: message.metadata };
       }
 
       return message;
     });
   }
 
-  public async sendMessage(message: string, sessionId: string): Promise<void> {
+  public async sendMessage(message: string, sessionId: string, metadata?: Record<string, unknown>): Promise<void> {
     const headers = new Headers();
     if (this.authenticationToken) {
       headers.append('Authorization', `Bearer ${this.authenticationToken}`);
@@ -62,7 +62,7 @@ export class HTTPConnection implements ConnectionStrategy {
     return fetch(`${this.url}/webhooks/rest/webhook`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ sender: sessionId, message }),
+      body: JSON.stringify({ sender: sessionId, message, ...(metadata ? { metadata } : {}) }),
     })
       .then(response => {
         if (!response.ok) {

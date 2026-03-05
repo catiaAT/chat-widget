@@ -46,6 +46,7 @@
       font-family="Verdana, sans-serif"
       auto-open="false"
       input-message-placeholder=""
+      message-metadata='{"source":"html-example","tenant":"at"}'
       disclaimer-enabled="true"
       disclaimer-storage-key="disclaimer_accepted"
       disclaimer-title="Bem-vindo"
@@ -96,6 +97,10 @@
 
         widget.addEventListener('chatWidgetReceivedMessage', function(event) {
           console.log('[widget] received:', event.detail);
+          const metadata = event?.detail?.metadata;
+          if (metadata !== undefined) {
+            console.log('[widget] received metadata:', metadata);
+          }
         });
 
         setTimeout(attachSocketDebugLogs, 800);

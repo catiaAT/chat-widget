@@ -20,6 +20,7 @@ export const normalizeHttpQuickReplyResponse = (message: HttpQuickReplyResponse)
       payload: button.payload,
       title: button.title,
     })),
+    metadata: message.metadata,
   };
 };
 
@@ -32,6 +33,7 @@ export const normalizeHttpImageResponse = (message: HttpImageResponse) => {
       },
       type: RESPONSE_MESSAGE_TYPES.IMAGE,
     },
+    metadata: message.metadata,
   };
 };
 
