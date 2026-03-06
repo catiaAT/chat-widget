@@ -69,6 +69,8 @@ export class Rasa extends EventEmitter {
       custom?: unknown;
       customData?: unknown;
       userInput?: unknown;
+      utter_type?: unknown;
+      utterType?: unknown;
     };
 
     const customData =
@@ -88,6 +90,7 @@ export class Rasa extends EventEmitter {
       | 'custom'
       | 'customData'
       | 'userInput'
+      | 'utter_type'
       | undefined;
     let extractedMetadata: unknown;
 
@@ -109,6 +112,12 @@ export class Rasa extends EventEmitter {
     } else if (responseData?.userInput !== undefined) {
       metadataSource = 'userInput';
       extractedMetadata = { userInput: responseData.userInput };
+    } else if (responseData?.utter_type !== undefined || responseData?.utterType !== undefined) {
+      metadataSource = 'utter_type';
+      extractedMetadata = {
+        utter_type: responseData.utter_type,
+        utterType: responseData.utterType,
+      };
     }
 
     if (extractedMetadata !== undefined) {

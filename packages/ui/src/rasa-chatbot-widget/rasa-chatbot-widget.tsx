@@ -24,6 +24,9 @@ export class RasaChatbotWidget {
   private disconnectTimeout: NodeJS.Timeout | null = null;
   private sentMessage = false;
   private disclaimerInitialPayloadSent = false;
+  private pendingBotMessageMetadata?: Record<string, unknown>;
+  private pendingBotMessageMetadataTimeoutId: NodeJS.Timeout | null = null;
+  private currentBotTurnMessages: Message[] = [];
 
   @Element() el: HTMLRasaChatbotWidgetElement;
   @State() isOpen: boolean = false;
@@ -410,7 +413,40 @@ export class RasaChatbotWidget {
     // If senderID is configured (continuous session), tab is not in focus and user message was not sent from this tab do not render new server message
     if (this.senderId && !document.hasFocus() && !this.sentMessage) return;
 
-    const metadata = 'metadata' in data ? data.metadata : undefined;
+    if ('sender' in data && data.sender === SENDER.USER) {
+      this.resetBotTurnState();
+    }
+
+    const shouldApplyPendingMetadata =
+      this.pendingBotMessageMetadata &&
+      'sender' in data &&
+      data.sender === SENDER.BOT &&
+      data.type === MESSAGE_TYPES.TEXT &&
+      !('metadata' in data && data.metadata !== undefined);
+
+    const normalizedData = shouldApplyPendingMetadata
+      ? ({ ...data, metadata: this.pendingBotMessageMetadata } as Message)
+      : data;
+
+    if (shouldApplyPendingMetadata) {
+      console.log('[Rasa Chat Widget] applying pending metadata to incoming bot message:', this.pendingBotMessageMetadata);
+    }
+
+    if (
+      this.pendingBotMessageMetadata &&
+      'sender' in normalizedData &&
+      normalizedData.sender === SENDER.BOT &&
+      normalizedData.type !== MESSAGE_TYPES.TEXT
+    ) {
+      console.log('[Rasa Chat Widget] discarding pending metadata on non-text bot message');
+      this.clearPendingBotMessageMetadata();
+    }
+
+    if ('sender' in normalizedData && normalizedData.sender === SENDER.BOT) {
+      this.currentBotTurnMessages.push(normalizedData);
+    }
+
+    const metadata = 'metadata' in normalizedData ? normalizedData.metadata : undefined;
     if (metadata && typeof metadata === 'object' && 'userInput' in metadata) {
       const userInput = (metadata as { userInput?: unknown }).userInput;
       if (userInput === 'disable') {
@@ -424,23 +460,23 @@ export class RasaChatbotWidget {
     // Don't skip "no_feedback" messages - we need to add them to messages array to check for them
     // They will be filtered out in renderMessage so they don't display
 
-    this.chatWidgetReceivedMessage.emit(data);
-    const delay = data.type === MESSAGE_TYPES.SESSION_DIVIDER || data.sender === SENDER.USER ? 0 : configStore().messageDelay;
+    this.chatWidgetReceivedMessage.emit(normalizedData);
+    const delay = normalizedData.type === MESSAGE_TYPES.SESSION_DIVIDER || normalizedData.sender === SENDER.USER ? 0 : configStore().messageDelay;
     
     // Reset feedback state on new session
-    if (data.type === MESSAGE_TYPES.SESSION_DIVIDER) {
+    if (normalizedData.type === MESSAGE_TYPES.SESSION_DIVIDER) {
       this.feedbackSubmitted = false;
     }
 
     this.messageDelayQueue = this.messageDelayQueue.then(() => {
       return new Promise<void>(resolve => {
         // Check if this is a "no_feedback" message - if so, skip delay and clear typing indicator immediately
-        const isNoFeedback = 'text' in data && data.text && (data.text as string).trim() === 'no_feedback';
+        const isNoFeedback = 'text' in normalizedData && normalizedData.text && (normalizedData.text as string).trim() === 'no_feedback';
         
         if (isNoFeedback) {
           // For "no_feedback" messages, don't show typing indicator and process immediately
           this.typingIndicator = false;
-          messageQueueService.enqueueMessage(data);
+          messageQueueService.enqueueMessage(normalizedData);
           resolve();
           return;
         }
@@ -448,12 +484,12 @@ export class RasaChatbotWidget {
         this.typingIndicator = delay > 0;
 
         setTimeout(() => {
-          messageQueueService.enqueueMessage(data);
+          messageQueueService.enqueueMessage(normalizedData);
           this.typingIndicator = false;
           
           // Show feedback after bot message is processed
           if (this.enableFeedback && !this.showFeedback && !this.feedbackSubmitted && 
-              'sender' in data && data.sender === SENDER.BOT) {
+              'sender' in normalizedData && normalizedData.sender === SENDER.BOT) {
             // Add a delay to ensure the message is fully rendered and added to this.messages
             setTimeout(() => {
               this.showConversationFeedback();
@@ -478,6 +514,27 @@ export class RasaChatbotWidget {
       return;
     }
 
+    if (this.hasUtterTypeMetadata(metadata)) {
+      const typedMetadata = metadata as Record<string, unknown>;
+      const appliedToCurrentTurn = this.applyMetadataToCurrentBotTurn(typedMetadata);
+      const appliedToBufferedTurn = this.applyMetadataToBufferedBotTurn(typedMetadata);
+
+      if (appliedToCurrentTurn || appliedToBufferedTurn) {
+        this.clearPendingBotMessageMetadata();
+      } else {
+        this.pendingBotMessageMetadata = typedMetadata;
+        this.resetPendingBotMessageMetadataTimeout();
+        console.log('[Rasa Chat Widget] stored pending response metadata:', this.pendingBotMessageMetadata);
+      }
+
+      if (appliedToCurrentTurn) {
+        console.log('[Rasa Chat Widget] applied response metadata to current bot turn');
+      }
+      if (appliedToBufferedTurn) {
+        console.log('[Rasa Chat Widget] applied response metadata to buffered bot turn messages');
+      }
+    }
+
     const userInput = (metadata as { userInput?: unknown }).userInput;
     if (userInput === 'disable') {
       widgetState.getState().state.userInputDisabled = true;
@@ -486,6 +543,112 @@ export class RasaChatbotWidget {
       widgetState.getState().state.userInputDisabled = false;
     }
   };
+
+  private hasUtterTypeMetadata(metadata: unknown): boolean {
+    if (!metadata || typeof metadata !== 'object') {
+      return false;
+    }
+
+    const metadataObject = metadata as { utter_type?: unknown; utterType?: unknown };
+    return typeof metadataObject.utter_type === 'string' || typeof metadataObject.utterType === 'string';
+  }
+
+  private applyMetadataToCurrentBotTurn(metadata: Record<string, unknown>): boolean {
+    if (!this.messages.length) {
+      return false;
+    }
+
+    const nextMessages = [...this.messages];
+    let applied = false;
+
+    for (let i = nextMessages.length - 1; i >= 0; i--) {
+      const currentMessage = nextMessages[i];
+
+      if (!('sender' in currentMessage)) {
+        break;
+      }
+
+      if (currentMessage.sender !== SENDER.BOT) {
+        break;
+      }
+
+      if (currentMessage.type !== MESSAGE_TYPES.TEXT) {
+        continue;
+      }
+
+      nextMessages[i] = {
+        ...currentMessage,
+        metadata: {
+          ...(('metadata' in currentMessage && typeof currentMessage.metadata === 'object' && currentMessage.metadata !== null
+            ? (currentMessage.metadata as Record<string, unknown>)
+            : {})),
+          ...metadata,
+        },
+      } as Message;
+      applied = true;
+    }
+
+    if (applied) {
+      this.messages = nextMessages;
+    }
+
+    return applied;
+  }
+
+  private applyMetadataToBufferedBotTurn(metadata: Record<string, unknown>): boolean {
+    if (!this.currentBotTurnMessages.length) {
+      return false;
+    }
+
+    let applied = false;
+
+    this.currentBotTurnMessages.forEach(message => {
+      if (!('sender' in message) || message.sender !== SENDER.BOT) {
+        return;
+      }
+
+      if (message.type !== MESSAGE_TYPES.TEXT) {
+        return;
+      }
+
+      const existingMetadata =
+        'metadata' in message && typeof message.metadata === 'object' && message.metadata !== null
+          ? (message.metadata as Record<string, unknown>)
+          : {};
+
+      (message as Message & { metadata?: unknown }).metadata = {
+        ...existingMetadata,
+        ...metadata,
+      };
+      applied = true;
+    });
+
+    return applied;
+  }
+
+  private clearPendingBotMessageMetadata(): void {
+    this.pendingBotMessageMetadata = undefined;
+    if (this.pendingBotMessageMetadataTimeoutId) {
+      clearTimeout(this.pendingBotMessageMetadataTimeoutId);
+      this.pendingBotMessageMetadataTimeoutId = null;
+    }
+  }
+
+  private resetBotTurnState(): void {
+    this.currentBotTurnMessages = [];
+    this.clearPendingBotMessageMetadata();
+  }
+
+  private resetPendingBotMessageMetadataTimeout(): void {
+    if (this.pendingBotMessageMetadataTimeoutId) {
+      clearTimeout(this.pendingBotMessageMetadataTimeoutId);
+    }
+
+    this.pendingBotMessageMetadataTimeoutId = setTimeout(() => {
+      this.clearPendingBotMessageMetadata();
+      console.log('[Rasa Chat Widget] cleared pending response metadata due to timeout');
+    }, 2500);
+  }
 
   private loadHistory = (data: Message[]): void => {
     this.messages = data;
@@ -554,6 +717,7 @@ export class RasaChatbotWidget {
   @Listen('sendMessageHandler')
   // @ts-ignore-next-line
   private sendMessageHandler(event: CustomEvent<string>) {
+    this.resetBotTurnState();
     const timestamp = new Date();
     this.client.sendMessage({ text: event.detail, timestamp });
     this.chatWidgetSentMessage.emit(event.detail);
@@ -568,6 +732,7 @@ export class RasaChatbotWidget {
   @Listen('quickReplySelected')
   // @ts-ignore-next-line
   private quickReplySelected({ detail: { quickReply, key } }: CustomEvent<{ quickReply: QuickReply; key: number }>) {
+    this.resetBotTurnState();
     const timestamp = new Date();
 
     const messageHistoryKey = this.messages
@@ -732,6 +897,7 @@ export class RasaChatbotWidget {
   
   private restartSession = (e: MouseEvent) => {
     e.stopPropagation();
+    this.resetBotTurnState();
     const text = '/restart';
     const timestamp = new Date();
     this.client.sendMessage({ text, timestamp });
