@@ -31,9 +31,12 @@
     rasa-link-button {
       display: inline-flex;
       transition: transform 0.16s ease, filter 0.16s ease;
-      --message-button-background-color: #1F5AA6;
-      --message-button-border-color: #1F5AA6;
-      --message-button-color: #FFFFFF;
+      --message-button-background-color: #FFFFFF;
+      --message-button-border-color: #2C5DCB;
+      --message-button-color: #2C5DCB;
+      --message-button-hover-background-color: #2C5DCB;
+      --message-button-hover-border-color: #2C5DCB;
+      --message-button-hover-color: #FFFFFF;
       --message-selected-button-background-color: #1F5AA6;
       --message-selected-button-border-color: #1F5AA6;
       --message-selected-button-color: #FFFFFF;
