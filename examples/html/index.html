@@ -13,14 +13,22 @@
       href="./rasa-chatwidget/rasa-chatwidget.css?v=119"
     />
     <link rel="stylesheet" href="./rasa-chatwidget/widget-theme.css?v=1" />
+    <style>
+      body {
+        background-image: url('./rasa-chatwidget/assets/images/fundo_teste.JPG');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+    </style>
   </head>
   <body>
     <!-- old server-url="https://catia.portaldasfinancas.gov.pt" -->
-     
+    <!-- old server-url="http://localhost:5005" -->
     <rasa-chatbot-widget
       id="chat-widget"
       widget-title="Ajuda Online - LLM poc"
-      server-url="http://localhost:5005"
+      server-url="https://catia.portaldasfinancas.gov.pt"
       widget-icon="./rasa-chatwidget/assets/images/catia_horizontal.png"
       bot-icon="./rasa-chatwidget/assets/images/catia_vertical.png"
       rest-enabled="false"
@@ -28,7 +36,7 @@
       enable-feedback="true"
       feedback-question-text="Gostaria de classificar esta conversa?"
       feedback-thank-you-text="Obrigado por classificar!"
-      downloadable="true"
+      downloadable="false"
       restart-enabled="true"
       rasa-typing-indicator="true"
       toggle-full-screen="true"
