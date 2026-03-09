@@ -782,6 +782,7 @@ export class RasaChatbotWidget {
     
     // Handle feedback submission by directly setting slot in Rasa tracker
     const slotValue = event.detail.rating === 'positive' ? 'positive' : 'negative';
+    const ratedUtterName = this.getLastRatedUtterName() ?? 'no_utter';
     
     // Set slot directly in Rasa tracker via REST API (with better error handling)
     (async () => {
@@ -800,28 +801,9 @@ export class RasaChatbotWidget {
         // Get current session ID
         const sessionId = this.client?.sessionId || 'default';
         
-        // Set slot via Rasa tracker events API
-        const response = await fetch(`${baseUrl}/conversations/${sessionId}/tracker/events`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // Add authentication headers if needed
-            // 'Authorization': 'Bearer your-token',
-            // 'X-Auth-Token': 'your-token',
-            // 'API-Key': 'your-api-key'
-          },
-          body: JSON.stringify({
-            "event": "slot",
-            "name": "widget_feedback",
-            "value": slotValue,
-            "timestamp": null
-          })
-        });
-        
-        // Slot setting response handled silently
-        if (!response.ok) {
-          // Slot setting failed - error handled silently
-        }
+        // Save the feedback result and the utter that was rated.
+        await this.setTrackerSlot(baseUrl, sessionId, 'widget_feedback', slotValue);
+        await this.setTrackerSlot(baseUrl, sessionId, 'widget_feedback_utter', ratedUtterName);
       } catch (error) {
         // Slot setting error handled silently
       }
@@ -835,6 +817,41 @@ export class RasaChatbotWidget {
     } catch (error) {
       // Silently handle event emission errors
     }
+  }
+
+  private getLastRatedUtterName(): string | undefined {
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      const message = this.messages[i];
+      if (!('sender' in message) || message.sender !== SENDER.BOT) {
+        continue;
+      }
+
+      const utterType = this.getMessageUtterType(message);
+      if (utterType) {
+        return utterType;
+      }
+    }
+
+    return undefined;
+  }
+
+  private async setTrackerSlot(baseUrl: string, sessionId: string, slotName: string, slotValue: string): Promise<void> {
+    await fetch(`${baseUrl}/conversations/${sessionId}/tracker/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add authentication headers if needed
+        // 'Authorization': 'Bearer your-token',
+        // 'X-Auth-Token': 'your-token',
+        // 'API-Key': 'your-api-key'
+      },
+      body: JSON.stringify({
+        event: 'slot',
+        name: slotName,
+        value: slotValue,
+        timestamp: null,
+      }),
+    });
   }
 
 
