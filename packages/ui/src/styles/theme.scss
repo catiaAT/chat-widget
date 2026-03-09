@@ -14,6 +14,7 @@
   --message-robot-icon-color: var(--color-secondary);
   --message-robot-background-color: #F2F6FB;
   --message-robot-color: #1E2A36;
+  --message-robot-font-family: var(--font-family);
   --message-headline-background-color: #FFF3BF;
   --message-headline-color: #1E2A36;
   --message-user-background-color: var(--color-primary);
@@ -31,7 +32,7 @@
   --disclaimer-overlay-backdrop-filter: none;
   --disclaimer-background-color: var(--messenger-background-color);
   --disclaimer-text-color: var(--color-secondary-opposite);
-  --disclaimer-font-family: var(--font-family);
+  --disclaimer-font-family: 'Lato', serif;
   --disclaimer-font-size: 14px;
   --disclaimer-line-height: 1.6;
   --disclaimer-padding: 16px;

@@ -6,6 +6,7 @@
 :host(.text-message--bot) {
   background-color: var(--message-robot-background-color);
   color: var(--message-robot-color);
+  font-family: var(--message-robot-font-family);
 }
 
 :host(.text-message--headline) {

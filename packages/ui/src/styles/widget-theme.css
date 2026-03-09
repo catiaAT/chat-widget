@@ -22,6 +22,7 @@ rasa-chatbot-widget {
   --message-headline-color: #2c3e50;
   --message-user-background-color: #102d70;
   --message-user-color: #ffffff;
+  --message-robot-font-family: 'Roboto', sans-serif;
   --disclaimer-background-color: #ffffff;
   --disclaimer-text-color: #2c3e50;
   --disclaimer-title-color: #102d70;
@@ -29,7 +30,4 @@ rasa-chatbot-widget {
   --disclaimer-overlay-background-color: rgba(16, 45, 112, 0.35);
   --disclaimer-button-background-color: #102d70;
   --disclaimer-button-color: #ffffff;
-
-  /* Example: Set a custom font for the disclaimer text */
-  /* --disclaimer-font-family: 'Georgia', serif; */
 }
