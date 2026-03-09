@@ -1,0 +1,2 @@
+npm --prefix examples/html run sync:widget
+npm --prefix examples/html run dev

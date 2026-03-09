@@ -5,8 +5,12 @@
   font-weight: var(--rasa-text-font-weight, 400);
   line-height: var(--rasa-text-line-height, 150%);
   letter-spacing: var(--rasa-text-letter-spacing, 0.6px);
+  text-align: var(--rasa-text-align, inherit);
   overflow-wrap: break-word;
   white-space: pre-wrap;
+  word-break: break-word;
+  margin: var(--rasa-text-margin, 0);
+  padding: var(--rasa-text-padding, 0);
 
   &--bold {
     font-weight: bold;

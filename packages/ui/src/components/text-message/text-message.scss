@@ -1,6 +1,9 @@
 :host {
   display: flex;
-  padding: 8px 16px;
+  align-items: center;
+  padding: var(--text-message-padding, 8px 16px);
+  border-radius: var(--text-message-border-radius, 0);
+  text-align: var(--text-message-align, left);
 }
 
 :host(.text-message--bot) {
