@@ -155,7 +155,7 @@
 
 .rasa-chatbot-widget__disclaimer-content p {
   margin: 0 0 16px;
-  font-family: var(--disclaimer-font-family);
+  font-family: var(--disclaimer-font-family, 'Lato', sans-serif);
   font-size: var(--disclaimer-font-size, 14px);
   line-height: var(--disclaimer-line-height, 1.6);
 }

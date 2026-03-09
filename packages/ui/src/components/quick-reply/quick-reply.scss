@@ -11,6 +11,7 @@
     padding: 8px 16px;
     background-color: var(--message-robot-background-color);
     color: var(--message-robot-color);
+    --font-family: var(--message-robot-font-family);
 
     &--headline {
       background-color: var(--message-headline-background-color);

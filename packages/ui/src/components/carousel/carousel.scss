@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  --font-family: var(--message-robot-font-family);
 
   &--headline {
     --message-robot-background-color: var(--message-headline-background-color);
