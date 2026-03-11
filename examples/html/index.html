@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rasa Chat Widget - Test</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
     <script
       type="module"
       src="./rasa-chatwidget/rasa-chatwidget.esm.js?v=119"
@@ -28,8 +24,6 @@
     </style>
   </head>
   <body>
-    <!-- old server-url="https://catia.portaldasfinancas.gov.pt" -->
-    <!-- old server-url="http://localhost:5005" -->
     <rasa-chatbot-widget
       id="chat-widget"
       widget-title="Ajuda Online - LLM poc"
@@ -45,7 +39,7 @@
       restart-enabled="false"
       rasa-typing-indicator="true"
       toggle-full-screen="false"
-      font-family="Verdana, sans-serif"
+      font-family="Lato, sans-serif"
       auto-open="false"
       input-message-placeholder="Escreva a sua mensagem..."
       message-metadata='{"source":"html-example","tenant":"at"}'
@@ -59,46 +53,6 @@
       disclaimer-accept-button-text="Aceitar e continuar"
       disclaimer-initial-payload="/canal_entrada_principal_AT"
     ></rasa-chatbot-widget>
-
-    <script>
-      (function() {
-        const widget = document.getElementById('chat-widget');
-
-        function attachSocketDebugLogs() {
-          const socket = widget?.client?.socket;
-          if (!socket || socket.__debugLogsAttached) {
-            return;
-          }
-
-          socket.__debugLogsAttached = true;
-          socket.on('connect', () => console.log('[socket] connected:', socket.id));
-          socket.on('disconnect', (reason) => console.log('[socket] disconnected:', reason));
-          socket.on('connect_error', (error) => console.error('[socket] connect_error:', error?.message || error));
-          socket.on('bot_uttered', (payload) => console.log('[socket] bot_uttered:', payload));
-          socket.io?.on('reconnect_attempt', (attempt) => console.log('[socket] reconnect_attempt:', attempt));
-          socket.io?.on('reconnect', (attempt) => console.log('[socket] reconnected on attempt:', attempt));
-        }
-
-        // When widget opens
-        widget.addEventListener('chatWidgetOpened', function() {
-          attachSocketDebugLogs();
-        });
-
-        widget.addEventListener('chatWidgetSentMessage', function(event) {
-          console.log('[widget] sent:', event.detail);
-        });
-
-        widget.addEventListener('chatWidgetReceivedMessage', function(event) {
-          console.log('[widget] received:', event.detail);
-          const metadata = event?.detail?.metadata;
-          if (metadata !== undefined) {
-            console.log('[widget] received metadata:', metadata);
-          }
-        });
-
-        setTimeout(attachSocketDebugLogs, 800);
-      })();
-    </script>
   </body>
 </html>
 

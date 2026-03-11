@@ -21,11 +21,30 @@ Alternatively, you can use a CDN to include the chat widget in your project:
 <link rel="stylesheet" href="https://unpkg.com/@rasahq/chat-widget-ui/dist/rasa-chatwidget/rasa-chatwidget.css" />
 ```
 
+### Using a copied dist folder
+
+You can also copy the generated `dist/rasa-chatwidget` folder to another project or machine and serve it yourself.
+
+Requirements:
+
+- Copy the entire folder, including `assets/fonts` and `assets/images`.
+- Keep the relative structure intact so CSS, fonts, images, and module chunks continue to resolve.
+- Serve the files over HTTP/HTTPS instead of opening the HTML file directly with `file://`.
+
 ## Usage
 
 Add the chatbot widget to your HTML file:
 
 ```html
+<rasa-chatbot-widget server-url="https://example.com"></rasa-chatbot-widget>
+```
+
+Example with a copied local dist folder:
+
+```html
+<script type="module" src="./rasa-chatwidget/rasa-chatwidget.esm.js"></script>
+<link rel="stylesheet" href="./rasa-chatwidget/rasa-chatwidget.css" />
+
 <rasa-chatbot-widget server-url="https://example.com"></rasa-chatbot-widget>
 ```
 

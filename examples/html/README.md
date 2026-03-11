@@ -32,3 +32,13 @@ Then reference them in `examples/html/index.html`:
 ## Automatic sync to `examples/html`
 
 Running `npm run dev` in `examples/html` now builds `packages/ui` and syncs the generated widget bundle to `examples/html/rasa-chatwidget` before starting the server.
+
+## Copying the generated widget to another machine
+
+If you want to reuse the generated widget outside this repository, copy the entire `packages/ui/dist/rasa-chatwidget` folder, including `assets/fonts` and `assets/images`.
+
+Notes:
+
+- The distributed CSS now bundles local `@font-face` declarations for the widget fonts, so the target machine does not need those fonts installed.
+- Do not copy only `rasa-chatwidget.css` or `rasa-chatwidget.esm.js`; they depend on files inside `assets/`.
+- Serve the copied files over HTTP/HTTPS. Opening the HTML file directly with `file://` can break ES module loading and relative asset resolution.

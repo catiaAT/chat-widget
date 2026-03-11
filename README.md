@@ -157,6 +157,8 @@ In the <body> section of your HTML, add the chat widget’s custom element. Make
 
 - **Running a Local Server:** If you’re using the `<script type="module">` tag, you can’t simply double-click the HTML file to open it in your browser. This is because modern browsers enforce strict security policies when loading ES modules, preventing them from being executed if the file is accessed via the file:// protocol. Instead, you’ll need to serve your HTML file through a local server (e.g., using tools like http-server, live-server, or running a simple Python HTTP server with python -m http.server).
   - **Why This Happens:** When loading JavaScript modules, browsers apply stricter security rules to prevent potential vulnerabilities. The file:// protocol does not allow cross-origin imports, which are often needed when working with modules. Running a local server provides the http:// or https:// protocol, which supports proper module loading and allows the browser to manage dependencies correctly.
+- **Copying the built widget:** If you copy `packages/ui/dist/rasa-chatwidget` to another machine, copy the whole folder, including `assets/fonts` and `assets/images`. The distributed CSS expects those relative paths to exist.
+- **Fonts:** The distributed bundle includes local `@font-face` declarations for the bundled fonts, so the target machine does not need those fonts installed separately.
 - Replace https://example.com with your actual Rasa server URL.
 - Ensure the script and link tags are correctly placed in the <head> section for optimal loading.
 - Example you can find [here](examples/html/index.html)
