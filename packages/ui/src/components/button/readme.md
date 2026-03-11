@@ -7,10 +7,11 @@
 
 ## Properties
 
-| Property     | Attribute     | Description                                     | Type      | Default     |
-| ------------ | ------------- | ----------------------------------------------- | --------- | ----------- |
-| `isSelected` | `is-selected` | Is button selected as option                    | `boolean` | `false`     |
-| `reply`      | `reply`       | Additional value that is passed at button click | `string`  | `undefined` |
+| Property       | Attribute        | Description                                     | Type      | Default     |
+| -------------- | ---------------- | ----------------------------------------------- | --------- | ----------- |
+| `isBackButton` | `is-back-button` | Is back button (for visual distinction)         | `boolean` | `false`     |
+| `isSelected`   | `is-selected`    | Is button selected as option                    | `boolean` | `false`     |
+| `reply`        | `reply`          | Additional value that is passed at button click | `string`  | `undefined` |
 
 
 ## Events

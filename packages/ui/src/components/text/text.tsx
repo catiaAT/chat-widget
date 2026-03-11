@@ -1,6 +1,17 @@
 import { Component, Prop, State, h, Host, Element, Event, EventEmitter } from '@stencil/core';
-import { parseFormattedString } from '../../utils/text-parser';
+import { marked } from 'marked';
 import { messageQueueService } from '../../store/message-queue';
+
+// Prevent raw HTML injection from markdown source (XSS defence)
+marked.use({
+  breaks: true,
+  gfm: true,
+  renderer: {
+    html({ text }: { text: string }) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
+  },
+});
 
 @Component({
   tag: 'rasa-text',
@@ -40,102 +51,39 @@ export class RasaText {
 
   @Element() el: HTMLRasaTextElement;
 
-  @State() segments: Array<{ text: string; linkSrc?: string; bold?: boolean; italic?: boolean; newline?: boolean }> = [];
-  @State() currentSegmentIndex: number = 0;
+  @State() streamedText: string = '';
+  @State() streamComplete: boolean = false;
 
   componentWillLoad() {
-    if (!this.disableParsing) {
-      this.segments = parseFormattedString(this.value);
+    if (!this.enableStream) {
+      this.streamComplete = true;
     }
   }
 
   async componentDidLoad() {
-    if (this.notifyCompleteRendering && this.disableParsing) {
-      messageQueueService.completeRendering();
-    } else {
-      await this.renderNextSegment();
-    }
-  }
-
-  private streamText(text: string, element: HTMLElement, delay = 30): Promise<void> {
-    return new Promise(resolve => {
-      if (!this.enableStream) {
-        element.textContent = text;
-        resolve();
-        return;
-      }
-
-      let currentChar = 0;
-      const printNextChar = () => {
-        if (currentChar < text.length) {
-          element.textContent += text[currentChar];
-          currentChar++;
-          setTimeout(printNextChar, delay);
-        } else {
-          resolve();
-        }
-      };
-
-      printNextChar();
-    });
-  }
-
-  private addClassList({ bold, italic }): { [key: string]: boolean } {
-    return {
-      'text': true,
-      'text--bold': bold,
-      'text--italic': italic,
-    };
-  }
-
-  private async renderNextSegment() {
-    const { segments, currentSegmentIndex } = this;
-    const segment = segments[currentSegmentIndex];
-
-    const element = await this.waitForElementInDom(`[data-segment-index="${currentSegmentIndex}"]`);
-
-    if (element) {
-      if (segment.newline) {
-        await this.streamText('', element, 0);
-      } else {
-        await this.streamText(segment.text, element, 30);
-      }
-    }
-
-    this.currentSegmentIndex++;
-    if (this.currentSegmentIndex < this.segments.length) {
-      await this.renderNextSegment();
+    if (!this.disableParsing && this.enableStream) {
+      await this.streamContent();
     } else if (this.notifyCompleteRendering) {
+      messageQueueService.completeRendering();
+    }
+  }
+
+  private async streamContent(): Promise<void> {
+    for (let i = 0; i < this.value.length; i++) {
+      this.streamedText = this.value.substring(0, i + 1);
+      await new Promise(r => setTimeout(r, 30));
+    }
+    this.streamComplete = true;
+    if (this.notifyCompleteRendering) {
       messageQueueService.completeRendering();
       this.textStreamComplete.emit();
     }
   }
 
-  private waitForElementInDom(selector: string): Promise<HTMLElement> {
-    return new Promise(resolve => {
-      const element = this.el.shadowRoot.querySelector(selector) as HTMLElement;
-
-      if (element) {
-        resolve(element);
-        return;
-      }
-
-      const observer = new MutationObserver(() => {
-        const element = this.el.shadowRoot.querySelector(selector) as HTMLElement;
-
-        if (element) {
-          observer.disconnect();
-          resolve(element);
-        }
-      });
-
-      observer.observe(this.el.shadowRoot, { childList: true, subtree: true });
-    });
-  }
-
-  private onLinkClick = () => {
-    this.linkClicked.emit();
-    return true;
+  private handleClick = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('a')) {
+      this.linkClicked.emit();
+    }
   };
 
   render() {
@@ -147,23 +95,21 @@ export class RasaText {
       );
     }
 
+    if (this.enableStream && !this.streamComplete) {
+      return (
+        <Host>
+          <span class="text" part="text">{this.streamedText}</span>
+        </Host>
+      );
+    }
+
+    const html = marked.parse(this.value) as string;
     return (
       <Host>
-        {this.segments.map(({ linkSrc, bold, italic, newline }, index) => {
-          const classList = this.addClassList({ bold, italic });
-          if (newline) {
-            return <br key={index} data-segment-index={index}></br>;
-          }
-          if (linkSrc) {
-            return (
-              <a href={linkSrc} target="_blank" key={index} onClick={this.onLinkClick}>
-                <span class={classList} data-segment-index={index}></span>
-              </a>
-            );
-          }
-          return <span class={classList} key={index} data-segment-index={index}></span>;
-        })}
+        <div class="text markdown-body" part="text" onClick={this.handleClick} innerHTML={html}></div>
       </Host>
     );
   }
+
+  // ------------------------------------------------------------- //
 }

@@ -40,6 +40,10 @@ export namespace Components {
     }
     interface RasaButton {
         /**
+          * Is back button (for visual distinction)
+         */
+        "isBackButton": boolean;
+        /**
           * Is button selected as option
          */
         "isSelected": boolean;
@@ -1035,6 +1039,10 @@ declare namespace LocalJSX {
         "label"?: string;
     }
     interface RasaButton {
+        /**
+          * Is back button (for visual distinction)
+         */
+        "isBackButton"?: boolean;
         /**
           * Is button selected as option
          */

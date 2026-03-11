@@ -111,7 +111,7 @@ export class RasaQuickReply {
                   <rasa-text value={button.text} disableParsing={true}></rasa-text>
                 </rasa-link-button>
               ) : (
-                <rasa-button {...button} key={key} isSelected={button.isSelected} title={button.text}>
+                <rasa-button {...button} key={key} isSelected={button.isSelected} isBackButton={button.text === 'Voltar ao anterior'} title={button.text}>
                   <rasa-text value={button.text} disableParsing={true}></rasa-text>
                 </rasa-button>
               ))}

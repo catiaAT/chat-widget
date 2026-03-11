@@ -20,18 +20,16 @@
   }
 
   &__buttons {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 12px;
-    align-items: stretch;
-    padding: 6px 24px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px 24px 10px;
     background-color: var(--color-secondary);
     border-radius: 12px;
 
     /* Supports both current structure and older builds that wrap each button in a plain div. */
     > div {
-      display: block;
-      width: 100%;
+      display: contents;
     }
 
     rasa-button,
@@ -40,6 +38,7 @@
     > div > rasa-link-button {
       display: block;
       width: 100%;
+      min-width: 0;
       transition: transform 0.16s ease, filter 0.16s ease;
       --rasa-button-width: 100%;
       --rasa-button-margin: 0;
@@ -68,23 +67,19 @@
     }
 
     rasa-text::part(text) {
-      width: 100%;
-      text-overflow: ellipsis;
       display: block;
+      width: 100%;
       white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
       line-height: 1;
       margin: 0;
-      text-align: center;
     }
 
     &--disabled {
       pointer-events: none;
       opacity: 0.6;
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
     }
   }
 }

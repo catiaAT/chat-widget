@@ -39,4 +39,16 @@
     color: var(--message-selected-button-color);
     border: 1px solid var(--message-selected-button-border-color);
   }
+
+  &--back {
+    background-color: #f5f5f5;
+    border-color: #d0d0d0;
+    color: #666;
+
+    &:hover {
+      background-color: #ebebeb;
+      border-color: #b0b0b0;
+      color: #333;
+    }
+  }
 }

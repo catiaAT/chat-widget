@@ -9,11 +9,10 @@
   font-size: var(--rasa-text-font-size, 13px);
   font-style: normal;
   font-weight: var(--rasa-text-font-weight, 400);
-  line-height: var(--rasa-text-line-height, 150%);
-  letter-spacing: var(--rasa-text-letter-spacing, 0.6px);
+  line-height: var(--rasa-text-line-height, 1.6);
+  letter-spacing: var(--rasa-text-letter-spacing, 0.3px);
   text-align: inherit;
   overflow-wrap: break-word;
-  white-space: pre-wrap;
   word-break: break-word;
   margin: var(--rasa-text-margin, 0);
   padding: var(--rasa-text-padding, 0);
@@ -24,5 +23,54 @@
 
   &--italic {
     font-style: italic;
+  }
+}
+
+// Markdown rendered content (bot messages)
+.markdown-body {
+  white-space: normal;
+
+  // Remove extra margin from first/last block elements
+  > *:first-child { margin-top: 0; }
+  > *:last-child { margin-bottom: 0; }
+
+  p {
+    margin: 0 0 0.65em;
+    text-align: justify;
+    &:last-child { margin-bottom: 0; }
+  }
+
+  ul,
+  ol {
+    margin: 0.3em 0 0.65em;
+    padding-left: 1.5em;
+    text-align: left;
+    &:last-child { margin-bottom: 0; }
+
+    // Nested lists
+    ul, ol {
+      margin-top: 0.2em;
+      margin-bottom: 0.2em;
+    }
+  }
+
+  li {
+    margin-bottom: 0.3em;
+    line-height: 1.55;
+  }
+
+  a {
+    color: var(--color-primary, #003964);
+    text-decoration: underline;
+    word-break: break-word;
+    cursor: pointer;
+  }
+
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  // Strip default paragraph margin inside list items
+  li > p {
+    margin: 0;
   }
 }

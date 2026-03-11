@@ -14,6 +14,10 @@ export class RasaButton {
    * Is button selected as option
    */
   @Prop() isSelected: boolean = false;
+  /**
+   * Is back button (for visual distinction)
+   */
+  @Prop() isBackButton: boolean = false;
 
   /**
    * On button click event emitter
@@ -26,7 +30,7 @@ export class RasaButton {
 
   render() {
     return (
-      <button class={`rasa-button ${this.isSelected && 'rasa-button--selected'}`} onClick={this.buttonClick}>
+      <button class={`rasa-button ${this.isSelected && 'rasa-button--selected'} ${this.isBackButton && 'rasa-button--back'}`} onClick={this.buttonClick}>
         <slot></slot>
       </button>
     );
