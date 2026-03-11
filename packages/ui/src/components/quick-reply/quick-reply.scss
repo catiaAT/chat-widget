@@ -20,18 +20,33 @@
   }
 
   &__buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 6px 40px 2px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+    align-items: stretch;
+    padding: 6px 24px 6px;
     background-color: var(--color-secondary);
     border-radius: 12px;
 
+    /* Supports both current structure and older builds that wrap each button in a plain div. */
+    > div {
+      display: block;
+      width: 100%;
+    }
+
     rasa-button,
-    rasa-link-button {
-      display: inline-flex;
+    rasa-link-button,
+    > div > rasa-button,
+    > div > rasa-link-button {
+      display: block;
+      width: 100%;
       transition: transform 0.16s ease, filter 0.16s ease;
+      --rasa-button-width: 100%;
+      --rasa-button-margin: 0;
+      --rasa-button-min-height: 36px;
+      --rasa-link-button-width: 100%;
+      --rasa-link-button-margin: 0;
+      --rasa-link-button-min-height: 36px;
       --message-button-background-color: #FFFFFF;
       --message-button-border-color: #2C5DCB;
       --message-button-color: #2C5DCB;
@@ -41,28 +56,35 @@
       --message-selected-button-background-color: #1F5AA6;
       --message-selected-button-border-color: #1F5AA6;
       --message-selected-button-color: #FFFFFF;
+      --rasa-text-align: center;
     }
 
     rasa-button:hover,
-    rasa-link-button:hover {
+    rasa-link-button:hover,
+    > div > rasa-button:hover,
+    > div > rasa-link-button:hover {
       transform: translateY(-1px);
       filter: brightness(0.98);
     }
 
     rasa-text::part(text) {
-      width: calc(100%);
-      max-width: 250px;
+      width: 100%;
       text-overflow: ellipsis;
       display: block;
       white-space: nowrap;
       overflow: hidden;
       line-height: 1;
       margin: 0;
+      text-align: center;
     }
 
     &--disabled {
       pointer-events: none;
       opacity: 0.6;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
     }
   }
 }

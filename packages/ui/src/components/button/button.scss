@@ -1,9 +1,11 @@
 .rasa-button {
   box-sizing: border-box;
-  margin: 0 4px 4px 0;
+  margin: var(--rasa-button-margin, 0 4px 4px 0);
   min-width: 0;
   appearance: none;
   display: inline-flex;
+  width: var(--rasa-button-width, auto);
+  min-height: var(--rasa-button-min-height, auto);
   text-align: center;
   text-decoration: none;
   border-radius: 8px;
