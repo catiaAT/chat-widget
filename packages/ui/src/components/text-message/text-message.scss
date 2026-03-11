@@ -11,6 +11,7 @@
   color: var(--message-robot-color);
   font-family: var(--message-robot-font-family);
   --font-family: var(--message-robot-font-family);
+  --rasa-text-align: justify;
 }
 
 :host(.text-message--headline) {

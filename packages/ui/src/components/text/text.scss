@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+  text-align: var(--rasa-text-align, inherit);
+}
+
 .text {
   font-family: var(--font-family);
   font-size: var(--rasa-text-font-size, 13px);
@@ -5,7 +11,7 @@
   font-weight: var(--rasa-text-font-weight, 400);
   line-height: var(--rasa-text-line-height, 150%);
   letter-spacing: var(--rasa-text-letter-spacing, 0.6px);
-  text-align: var(--rasa-text-align, inherit);
+  text-align: inherit;
   overflow-wrap: break-word;
   white-space: pre-wrap;
   word-break: break-word;
